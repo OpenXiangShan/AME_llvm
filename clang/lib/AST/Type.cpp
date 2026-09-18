@@ -2631,6 +2631,8 @@ bool Type::isSizelessBuiltinType() const {
   if (const BuiltinType *BT = getAs<BuiltinType>()) {
     switch (BT->getKind()) {
       // WebAssembly reference types
+#define BOSCZTT_TYPE(Name, Id, SingletonId) case BuiltinType::Id:
+#include "clang/Basic/RISCVBoscZttTypes.def"
 #define WASM_TYPE(Name, Id, SingletonId) case BuiltinType::Id:
 #include "clang/Basic/WebAssemblyReferenceTypes.def"
       // HLSL intangible types
@@ -2663,6 +2665,31 @@ bool Type::isWebAssemblyTableType() const {
 }
 
 bool Type::isSizelessType() const { return isSizelessBuiltinType(); }
+
+bool Type::isBoscZttType() const {
+  if (const auto *BT = getAs<BuiltinType>()) {
+    switch (BT->getKind()) {
+#define BOSCZTT_TYPE(Name, Id, SingletonId) case BuiltinType::Id:
+#include "clang/Basic/RISCVBoscZttTypes.def"
+      return true;
+    default:
+      break;
+    }
+  }
+  return false;
+}
+
+BuiltinType::BoscZttTypeInfo BuiltinType::getBoscZttTypeInfo() const {
+  switch (getKind()) {
+#define BOSCZTT_MATRIX_TYPE(Name, Id, SingletonId, Element, Width, Squares, Acc) \
+  case Id:                                                                    \
+    return {Width, Squares ? Squares : (Acc ? 1U : std::max(1U, 32U / Width)),  \
+            Acc};
+#include "clang/Basic/RISCVBoscZttTypes.def"
+  default:
+    llvm_unreachable("expected a boscztt matrix type");
+  }
+}
 
 bool Type::isSizelessVectorType() const {
   return isSVESizelessBuiltinType() || isRVVSizelessBuiltinType();
@@ -3659,6 +3686,10 @@ StringRef BuiltinType::getName(const PrintingPolicy &Policy) const {
   case Id:                                                                     \
     return Name;
 #include "clang/Basic/RISCVVTypes.def"
+#define BOSCZTT_TYPE(Name, Id, SingletonId)                                       \
+  case Id:                                                                     \
+    return Name;
+#include "clang/Basic/RISCVBoscZttTypes.def"
 #define WASM_TYPE(Name, Id, SingletonId)                                       \
   case Id:                                                                     \
     return Name;
@@ -5252,6 +5283,8 @@ bool Type::canHaveNullability(bool ResultIfUnknown) const {
 #include "clang/Basic/PPCTypes.def"
 #define RVV_TYPE(Name, Id, SingletonId) case BuiltinType::Id:
 #include "clang/Basic/RISCVVTypes.def"
+#define BOSCZTT_TYPE(Name, Id, SingletonId) case BuiltinType::Id:
+#include "clang/Basic/RISCVBoscZttTypes.def"
 #define WASM_TYPE(Name, Id, SingletonId) case BuiltinType::Id:
 #include "clang/Basic/WebAssemblyReferenceTypes.def"
 #define AMDGPU_TYPE(Name, Id, SingletonId, Width, Align) case BuiltinType::Id:

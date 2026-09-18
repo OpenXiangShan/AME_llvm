@@ -201,8 +201,7 @@ void InstrEmitter::CreateVirtualRegisters(SDNode *Node,
     // is a vreg in the same register class, use the CopyToReg'd destination
     // register instead of creating a new vreg.
     Register VRBase;
-    const TargetRegisterClass *RC =
-        TRI->getAllocatableClass(TII->getRegClass(II, i));
+    const TargetRegisterClass *RC = TII->getRegClass(II, i);
     // Always let the value type influence the used register class. The
     // constraints on the instruction may be too lax to represent the value
     // type correctly. For example, a 64-bit float (X86::FR64) can't live in
@@ -216,6 +215,10 @@ void InstrEmitter::CreateVirtualRegisters(SDNode *Node,
       if (VTRC)
         RC = VTRC;
     }
+    // Refine a class containing several register sizes by the value type
+    // before choosing an allocatable subclass. Choosing a subclass first can
+    // discard the only registers capable of holding this result.
+    RC = TRI->getAllocatableClass(RC);
 
     if (!II.operands().empty() && II.operands()[i].isOptionalDef()) {
       // Optional def must be a physical register.

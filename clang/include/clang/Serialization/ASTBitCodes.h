@@ -1146,6 +1146,8 @@ enum PredefinedTypeIDs {
 #define RVV_TYPE(Name, Id, SingletonId) PREDEF_TYPE_##Id##_ID,
 #include "clang/Basic/RISCVVTypes.def"
 // \brief WebAssembly reference types with auto numeration
+#define BOSCZTT_TYPE(Name, Id, SingletonId) PREDEF_TYPE_##Id##_ID,
+#include "clang/Basic/RISCVBoscZttTypes.def"
 #define WASM_TYPE(Name, Id, SingletonId) PREDEF_TYPE_##Id##_ID,
 #include "clang/Basic/WebAssemblyReferenceTypes.def"
 // \brief AMDGPU types with auto numeration
@@ -1166,7 +1168,7 @@ enum PredefinedTypeIDs {
 ///
 /// Type IDs for non-predefined types will start at
 /// NUM_PREDEF_TYPE_IDs.
-const unsigned NUM_PREDEF_TYPE_IDS = 529;
+const unsigned NUM_PREDEF_TYPE_IDS = 620;
 
 // Ensure we do not overrun the predefined types we reserved
 // in the enum PredefinedTypeIDs above.

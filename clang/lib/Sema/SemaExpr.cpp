@@ -984,6 +984,9 @@ VarArgKind Sema::isValidVarArgType(const QualType &Ty) {
     return VarArgKind::Invalid;
   }
 
+  if (Ty->isBoscZttType())
+    return VarArgKind::Invalid;
+
   if (Ty.isCXX98PODType(Context))
     return VarArgKind::Valid;
 
@@ -6464,6 +6467,8 @@ static bool isPlaceholderToRemoveAsArg(QualType type) {
 #include "clang/Basic/PPCTypes.def"
 #define RVV_TYPE(Name, Id, SingletonId) case BuiltinType::Id:
 #include "clang/Basic/RISCVVTypes.def"
+#define BOSCZTT_TYPE(Name, Id, SingletonId) case BuiltinType::Id:
+#include "clang/Basic/RISCVBoscZttTypes.def"
 #define WASM_TYPE(Name, Id, SingletonId) case BuiltinType::Id:
 #include "clang/Basic/WebAssemblyReferenceTypes.def"
 #define AMDGPU_TYPE(Name, Id, SingletonId, Width, Align) case BuiltinType::Id:
@@ -14326,6 +14331,13 @@ static void DiagnoseRecursiveConstFields(Sema &S, const Expr *E,
 static bool CheckForModifiableLvalue(Expr *E, SourceLocation Loc, Sema &S) {
   assert(!E->hasPlaceholderType(BuiltinType::PseudoObject));
 
+  if (E->getType()->isBoscZttType() &&
+      !isa<DeclRefExpr>(E->IgnoreParens())) {
+    S.Diag(Loc, diag::err_boscztt_operand)
+        << "destination must be a writable local matrix variable";
+    return true;
+  }
+
   S.CheckShadowingDeclModification(E, Loc);
 
   SourceLocation OrigLoc = Loc;
@@ -15188,6 +15200,10 @@ QualType Sema::CheckAddressOfOperand(ExprResult &OrigOp, SourceLocation OpLoc) {
     return Context.getObjCObjectPointerType(op->getType());
 
   // Cannot take the address of WebAssembly references or tables.
+  if (op->getType()->isBoscZttType()) {
+    Diag(OpLoc, diag::err_boscztt_address);
+    return QualType();
+  }
   if (Context.getTargetInfo().getTriple().isWasm()) {
     QualType OpTy = op->getType();
     if (OpTy.isWebAssemblyReferenceType()) {
@@ -19506,6 +19522,13 @@ static bool captureInBlock(BlockScopeInfo *BSI, ValueDecl *Var,
                            const bool Nested, Sema &S, bool Invalid) {
   bool ByRef = false;
 
+  if (CaptureType.getNonReferenceType()->isBoscZttType()) {
+    if (BuildAndDiagnose)
+      S.Diag(Loc, diag::err_boscztt_operand)
+          << "matrix register values cannot be captured";
+    return false;
+  }
+
   // Blocks are not allowed to capture arrays, excepting OpenCL.
   // OpenCL v2.0 s1.12.5 (revision 40): arrays are captured by reference
   // (decayed to pointers).
@@ -19616,6 +19639,12 @@ static bool captureInLambda(LambdaScopeInfo *LSI, ValueDecl *Var,
                             SourceLocation EllipsisLoc, const bool IsTopScope,
                             Sema &S, bool Invalid) {
   // Determine whether we are capturing by reference or by value.
+  if (CaptureType.getNonReferenceType()->isBoscZttType()) {
+    if (BuildAndDiagnose)
+      S.Diag(Loc, diag::err_boscztt_operand)
+          << "matrix register values cannot be captured";
+    return false;
+  }
   bool ByRef = false;
   if (IsTopScope && Kind != TryCaptureKind::Implicit) {
     ByRef = (Kind == TryCaptureKind::ExplicitByRef);
@@ -22105,6 +22134,8 @@ ExprResult Sema::CheckPlaceholderExpr(Expr *E) {
 #include "clang/Basic/PPCTypes.def"
 #define RVV_TYPE(Name, Id, SingletonId) case BuiltinType::Id:
 #include "clang/Basic/RISCVVTypes.def"
+#define BOSCZTT_TYPE(Name, Id, SingletonId) case BuiltinType::Id:
+#include "clang/Basic/RISCVBoscZttTypes.def"
 #define WASM_TYPE(Name, Id, SingletonId) case BuiltinType::Id:
 #include "clang/Basic/WebAssemblyReferenceTypes.def"
 #define AMDGPU_TYPE(Name, Id, SingletonId, Width, Align) case BuiltinType::Id:

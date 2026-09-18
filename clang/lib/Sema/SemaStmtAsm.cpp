@@ -338,9 +338,10 @@ StmtResult Sema::ActOnGCCAsmStmt(SourceLocation AsmLoc, bool IsSimple,
         checkExprMemoryConstraintCompat(*this, OutputExpr, Info, false))
       return StmtError();
 
-    // Disallow bit-precise integer types, since the backends tend to have
-    // difficulties with abnormal sizes.
-    if (OutputExpr->getType()->isBitIntType())
+    // Bit-precise integers and opaque matrix values do not have a supported
+    // inline-assembly constraint here.
+    if (OutputExpr->getType()->isBitIntType() ||
+        OutputExpr->getType()->isBoscZttType())
       return StmtError(
           Diag(OutputExpr->getBeginLoc(), diag::err_asm_invalid_type)
           << OutputExpr->getType() << 0 /*Input*/
@@ -434,6 +435,10 @@ StmtResult Sema::ActOnGCCAsmStmt(SourceLocation AsmLoc, bool IsSimple,
       return StmtError();
 
     // Check that the input expression is compatible with memory constraint.
+    if (InputExpr->getType()->isBoscZttType())
+      return StmtError(Diag(InputExpr->getBeginLoc(), diag::err_asm_invalid_type)
+                       << InputExpr->getType() << 1 /*Input*/
+                       << InputExpr->getSourceRange());
     if (Info.allowsMemory() &&
         checkExprMemoryConstraintCompat(*this, InputExpr, Info, true))
       return StmtError();

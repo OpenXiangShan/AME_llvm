@@ -16,8 +16,10 @@
 #include "clang/Basic/TargetBuiltins.h"
 #include "llvm/ADT/StringSwitch.h"
 #include "llvm/ADT/Twine.h"
+#include "llvm/Support/RISCVBoscZtt.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/TargetParser/RISCVTargetParser.h"
+#include <iterator>
 #include <optional>
 
 using namespace clang;
@@ -47,8 +49,30 @@ ArrayRef<const char *> RISCVTargetInfo::getGCCRegNames() const {
       // CSRs
       "fflags", "frm", "vtype", "vl", "vxsat", "vxrm", "sf.vcix_state"
     };
+  static const char *const BoscZttMNames[] = {
+      "m0",  "m1",  "m2",  "m3",  "m4",  "m5",  "m6",  "m7",
+      "m8",  "m9",  "m10", "m11", "m12", "m13", "m14", "m15",
+      "m16", "m17", "m18", "m19", "m20", "m21", "m22", "m23",
+      "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31"};
+  static const char *const BoscZttANames[] = {
+      "acc0", "acc1", "acc2", "acc3", "acc4", "acc5", "acc6", "acc7"};
   // clang-format on
-  return llvm::ArrayRef(GCCRegNames);
+  // Keep existing register numbers stable. As with vector names, allow matrix
+  // names in target-attributed functions even when the TU lacks the extension;
+  // the backend maps names using the actual function subtarget.
+  auto withBoscZttNames = [](bool AMEGem5) {
+    auto Profile = llvm::RISCV::getBoscZttProfile(AMEGem5);
+    SmallVector<const char *, 144> Names(std::begin(GCCRegNames),
+                                       std::end(GCCRegNames));
+    Names.append(std::begin(BoscZttMNames),
+                 std::begin(BoscZttMNames) + Profile.MRegisters);
+    Names.append(std::begin(BoscZttANames),
+                 std::begin(BoscZttANames) + Profile.AccRegisters);
+    return Names;
+  };
+  static const auto DefaultNames = withBoscZttNames(false);
+  static const auto AMEGem5Names = withBoscZttNames(true);
+  return HasBoscZttAMEGem5 ? AMEGem5Names : DefaultNames;
 }
 
 ArrayRef<TargetInfo::GCCRegAlias> RISCVTargetInfo::getGCCRegAliases() const {
@@ -149,6 +173,15 @@ void RISCVTargetInfo::getTargetDefines(const LangOptions &Opts,
   Builder.defineMacro("__riscv");
   bool Is64Bit = getTriple().isRISCV64();
   Builder.defineMacro("__riscv_xlen", Is64Bit ? "64" : "32");
+  if (ISAInfo->hasExtension("boscztt")) {
+    auto Profile = llvm::RISCV::getBoscZttProfile(HasBoscZttAMEGem5);
+    Builder.defineMacro("__riscv_boscztt_tile_side", Twine(Profile.TileSide));
+    Builder.defineMacro("__riscv_boscztt_m_registers", Twine(Profile.MRegisters));
+    Builder.defineMacro("__riscv_boscztt_acc_registers", Twine(Profile.AccRegisters));
+    Builder.defineMacro("__riscv_boscztt_unit_bits", "32");
+    Builder.defineMacro("__riscv_boscztt_max_element_bits",
+                        Twine(Profile.MaxElementBits));
+  }
   StringRef CodeModel = getTargetOpts().CodeModel;
   unsigned FLen = ISAInfo->getFLen();
   unsigned MinVLen = ISAInfo->getMinVLen();
@@ -353,7 +386,11 @@ bool RISCVTargetInfo::initFeatureMap(
   }
 
   std::vector<std::string> AllFeatures = FeaturesVec;
-  auto ParseResult = llvm::RISCVISAInfo::parseFeatures(XLen, FeaturesVec);
+  std::vector<std::string> ISAFeatures;
+  for (StringRef Feature : FeaturesVec)
+    if (Feature != "+boscztt-ame-gem5" && Feature != "-boscztt-ame-gem5")
+      ISAFeatures.push_back(Feature.str());
+  auto ParseResult = llvm::RISCVISAInfo::parseFeatures(XLen, ISAFeatures);
   if (!ParseResult) {
     std::string Buffer;
     llvm::raw_string_ostream OutputErrMsg(Buffer);
@@ -403,6 +440,7 @@ bool RISCVTargetInfo::hasFeature(StringRef Feature) const {
                     .Case("32bit", !Is64Bit)
                     .Case("64bit", Is64Bit)
                     .Case("experimental", HasExperimental)
+                    .Case("boscztt-ame-gem5", HasBoscZttAMEGem5)
                     .Default(std::nullopt);
   if (Result)
     return *Result;
@@ -414,7 +452,11 @@ bool RISCVTargetInfo::hasFeature(StringRef Feature) const {
 bool RISCVTargetInfo::handleTargetFeatures(std::vector<std::string> &Features,
                                            DiagnosticsEngine &Diags) {
   unsigned XLen = getTriple().isArch64Bit() ? 64 : 32;
-  auto ParseResult = llvm::RISCVISAInfo::parseFeatures(XLen, Features);
+  std::vector<std::string> ISAFeatures;
+  for (StringRef Feature : Features)
+    if (Feature != "+boscztt-ame-gem5" && Feature != "-boscztt-ame-gem5")
+      ISAFeatures.push_back(Feature.str());
+  auto ParseResult = llvm::RISCVISAInfo::parseFeatures(XLen, ISAFeatures);
   if (!ParseResult) {
     std::string Buffer;
     llvm::raw_string_ostream OutputErrMsg(Buffer);
@@ -429,6 +471,13 @@ bool RISCVTargetInfo::handleTargetFeatures(std::vector<std::string> &Features,
 
   if (ABI.empty())
     ABI = ISAInfo->computeDefaultABI().str();
+
+  HasBoscZttAMEGem5 = llvm::is_contained(Features, "+boscztt-ame-gem5");
+  if (HasBoscZttAMEGem5 && !ISAInfo->hasExtension("boscztt")) {
+    Diags.Report(diag::err_invalid_feature_combination)
+        << "the ame-gem5 profile requires the boscztt extension";
+    return false;
+  }
 
   if (ISAInfo->hasExtension("zfh") || ISAInfo->hasExtension("zhinx"))
     HasFastHalfType = true;

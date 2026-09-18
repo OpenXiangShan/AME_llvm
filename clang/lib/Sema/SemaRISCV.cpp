@@ -26,6 +26,7 @@
 #include "clang/Sema/Sema.h"
 #include "clang/Support/RISCVVIntrinsicUtils.h"
 #include "llvm/ADT/SmallVector.h"
+#include "llvm/Support/RISCVBoscZtt.h"
 #include "llvm/TargetParser/RISCVISAInfo.h"
 #include "llvm/TargetParser/RISCVTargetParser.h"
 #include <optional>
@@ -569,9 +570,197 @@ static bool CheckInvalidVLENandLMUL(const TargetInfo &TI,
   return false;
 }
 
+bool SemaRISCV::checkBoscZttTypeSupport(
+    QualType Ty, SourceLocation Loc, const llvm::StringMap<bool> &Features) {
+  if (!Features.lookup("boscztt"))
+    return Diag(Loc, diag::err_riscv_type_requires_extension) << Ty << "boscztt";
+  bool AMEGem5 = getASTContext().getTargetInfo().hasFeature("boscztt-ame-gem5");
+  if (Features.lookup("boscztt-ame-gem5") != AMEGem5)
+    return Diag(Loc, diag::err_boscztt_profile_change);
+  auto Profile = llvm::RISCV::getBoscZttProfile(AMEGem5);
+  auto Info = Ty->castAs<BuiltinType>()->getBoscZttTypeInfo();
+  if (Info.ElementWidth > Profile.MaxElementBits)
+    return Diag(Loc, diag::err_boscztt_profile_type)
+           << Ty << (AMEGem5 ? "ame-gem5" : "default");
+  unsigned Registers = Info.IsAccumulator
+                           ? std::max(Info.Squares, 32 / Info.ElementWidth)
+                           : llvm::divideCeil(Info.Squares * Info.ElementWidth, 32U);
+  if (Registers > (Info.IsAccumulator ? Profile.AccRegisters : Profile.MRegisters))
+    return Diag(Loc, diag::err_boscztt_profile_type)
+           << Ty << (AMEGem5 ? "ame-gem5" : "default");
+  return false;
+}
+
+// Keep the C interface in instruction operand order. A matrix destination is
+// updated in place; scalar destinations become the return value. This also
+// allows msettyp/asettyp to infer their result type from the destination.
+bool SemaRISCV::CheckBoscZttBuiltin(unsigned BuiltinID, CallExpr *Call) {
+  StringRef Form, Signature, Name;
+  switch (BuiltinID) {
+#define RISCV_ZTT_INTRINSIC(NAME, OPCODE, FORM, SIG)                             \
+  case RISCV::BI##NAME:                                                        \
+    Form = #FORM;                                                             \
+    Signature = SIG;                                                          \
+    Name = #NAME;                                                             \
+    break;
+#include "llvm/IR/IntrinsicsRISCVBoscZtt.def"
+#undef RISCV_ZTT_INTRINSIC
+  default:
+    llvm_unreachable("expected a boscztt builtin");
+  }
+  ASTContext &Context = getASTContext();
+  llvm::StringMap<bool> Features;
+  Context.getFunctionFeatureMap(Features, SemaRef.getCurFunctionDecl());
+  if (!Features.lookup("boscztt"))
+    return Diag(Call->getBeginLoc(), diag::err_riscv_builtin_requires_extension)
+           << true << Call->getSourceRange() << "boscztt";
+
+  bool ScalarResult = Form == "acquire" || Form == "get" || Form == "extract";
+  if (ScalarResult)
+    Signature = Signature.drop_front();
+  if (SemaRef.checkArgCount(Call, Signature.size()))
+    return true;
+  auto Error = [&](unsigned I, StringRef Message) {
+    return Diag(Call->getArg(I)->getExprLoc(), diag::err_boscztt_operand)
+           << Message << Call->getArg(I)->getSourceRange();
+  };
+  SmallVector<BuiltinType::BoscZttTypeInfo, 4> Matrices, Accumulators;
+  unsigned MaxPack = 1;
+  for (unsigned I = 0; I < Signature.size(); ++I) {
+    Expr *Arg = Call->getArg(I);
+    QualType Ty = Arg->getType();
+    char Kind = Signature[I];
+    if (Kind == 'M' || Kind == 'A') {
+      if (!Ty->isBoscZttType())
+        return Error(I, Kind == 'M' ? "expected an M matrix"
+                                    : "expected an ACC matrix");
+      if (checkBoscZttTypeSupport(Ty, Arg->getExprLoc(), Features))
+        return true;
+      auto Info = Ty->castAs<BuiltinType>()->getBoscZttTypeInfo();
+      if (Info.IsAccumulator != (Kind == 'A'))
+        return Error(I, Kind == 'M' ? "expected an M matrix"
+                                    : "expected an ACC matrix");
+      if (Ty.isVolatileQualified())
+        return Error(I, "matrix operands cannot be volatile");
+      bool IsOutput = Form == "zip" ||
+                      (I == 0 && (Form == "matrix" || Form == "set"));
+      if (IsOutput) {
+        const auto *DRE = dyn_cast<DeclRefExpr>(Arg->IgnoreParens());
+        const auto *VD = DRE ? dyn_cast<VarDecl>(DRE->getDecl()) : nullptr;
+        if (!VD || !VD->hasLocalStorage() || !Arg->isLValue() ||
+            Ty.isConstQualified())
+          return Error(I, "destination must be a writable local matrix variable");
+      } else {
+        ExprResult Converted = SemaRef.DefaultLvalueConversion(Arg);
+        if (Converted.isInvalid())
+          return true;
+        Call->setArg(I, Converted.get());
+      }
+      if (Kind == 'M') {
+        Matrices.push_back(Info);
+        MaxPack = std::max(MaxPack, std::max(1U, 32 / Info.ElementWidth));
+      } else {
+        Accumulators.push_back(Info);
+      }
+      continue;
+    }
+    ExprResult Converted = SemaRef.DefaultFunctionArrayLvalueConversion(Arg);
+    if (Converted.isInvalid())
+      return true;
+    Arg = Converted.get();
+    Ty = Arg->getType();
+    if (Kind == 'X') {
+      if (!Ty->isIntegerType())
+        return Error(I, "expected an integer scalar");
+      Converted = SemaRef.ImpCastExprToType(Arg, Context.UnsignedLongTy,
+                                          CK_IntegralCast);
+    } else {
+      const auto *PT = Ty->getAs<PointerType>();
+      if (!PT || PT->getPointeeType()->isFunctionType() ||
+          PT->getPointeeType().getAddressSpace() != LangAS::Default)
+        return Error(I, "expected an object pointer in the default address space");
+      if (Form == "store" && PT->getPointeeType().isConstQualified())
+        return Error(I, "store requires a pointer to writable memory");
+    }
+    Call->setArg(I, Converted.get());
+  }
+
+  // Enforce the same square/group relationships as the LLVM IR verifier.
+  // Element descriptors are runtime state, so differing element types are
+  // permitted when their groups cover the complete instruction footprint.
+  bool IsPack = Name == "mpack_ew_x" || Name == "munpack_ew_x";
+  if (Form == "matrix" && !IsPack &&
+      (Name.contains("_ew") || Name.starts_with("mprefix") ||
+       Name.starts_with("mreduce") || Name == "mmov_m_m"))
+    for (auto Info : Matrices)
+      if (Info.Squares != MaxPack)
+        return Error(
+            0, "elementwise operands must contain max(pack_factor) squares");
+  if (Name.contains("_2d") && !Name.starts_with("mzero")) {
+    for (auto Info : Matrices)
+      if (Info.Squares != MaxPack)
+        return Error(0, "multiply inputs must contain max(pack_factor) squares");
+    if (Accumulators[0].Squares != 1)
+      return Error(0, "multiply accumulator must contain one square");
+  }
+  if (Name == "mmov_m_a" || Name == "mmov_a_m")
+    if (Matrices[0].Squares != MaxPack ||
+        std::max(Accumulators[0].Squares,
+                 32 / Accumulators[0].ElementWidth) != MaxPack)
+      return Error(0, "M/ACC moves require matching complete packed-square groups");
+  if (Name == "mls_1r" || Name == "mss_1r" || Name.starts_with("mmove")) {
+    if (Matrices[0].Squares * Matrices[0].ElementWidth != 32)
+      return Error(0, "raw register operations require exactly one M register");
+  } else if (Name.starts_with("mls_") || Name.starts_with("mss_") ||
+             Name == "mbcast_m_x" || Name == "mzero_2d_m") {
+    if (Matrices[0].Squares != MaxPack)
+      return Error(0, "operation requires one complete datatype group");
+  }
+  if (IsPack) {
+    unsigned P = Name == "munpack_ew_x" ? 1 : 0;
+    auto Packed = Matrices[P], Unpacked = Matrices[1 - P];
+    if (Packed.ElementWidth >= 32 || Unpacked.ElementWidth < 32 ||
+        Packed.Squares != 32 / Packed.ElementWidth || Unpacked.Squares != 1)
+      return Error(0, "pack/unpack requires one packed register and one "
+                      "non-packed square");
+  }
+  if (Form == "zip") {
+    if (!Context.hasSameUnqualifiedType(Call->getArg(0)->getType(),
+                                       Call->getArg(1)->getType()) ||
+        Matrices[0].Squares != 1 || Matrices[0].ElementWidth < 32)
+      return Error(0, "zip/unzip requires two identical non-packed square types");
+    if (cast<DeclRefExpr>(Call->getArg(0)->IgnoreParens())->getDecl() ==
+        cast<DeclRefExpr>(Call->getArg(1)->IgnoreParens())->getDecl())
+      return Error(1, "zip/unzip destinations must be distinct variables");
+  }
+  if (Form == "set") {
+    Expr::EvalResult Value;
+    if (Call->getArg(1)->EvaluateAsInt(Value, Context)) {
+      unsigned Width = Call->getArg(0)
+                           ->getType()
+                           ->castAs<BuiltinType>()
+                           ->getBoscZttTypeInfo()
+                           .ElementWidth;
+      if ((Value.Val.getInt().getZExtValue() & 255) != Width)
+        return Error(1, "datatype descriptor width must match the destination "
+                        "element width");
+    }
+  }
+  Call->setType(ScalarResult ? Context.UnsignedLongTy : Context.VoidTy);
+  return false;
+}
+
 bool SemaRISCV::CheckBuiltinFunctionCall(const TargetInfo &TI,
                                          unsigned BuiltinID,
                                          CallExpr *TheCall) {
+  switch (BuiltinID) {
+#define RISCV_ZTT_INTRINSIC(NAME, OPCODE, FORM, SIG) case RISCV::BI##NAME:
+#include "llvm/IR/IntrinsicsRISCVBoscZtt.def"
+#undef RISCV_ZTT_INTRINSIC
+    return CheckBoscZttBuiltin(BuiltinID, TheCall);
+  default:
+    break;
+  }
   ASTContext &Context = getASTContext();
   const FunctionDecl *FD = SemaRef.getCurFunctionDecl();
   llvm::StringMap<bool> FunctionFeatureMap;

@@ -11,6 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "clang/Analysis/Analyses/UninitializedValues.h"
+#include "clang/AST/ASTContext.h"
 #include "clang/AST/Attr.h"
 #include "clang/AST/Decl.h"
 #include "clang/AST/DeclBase.h"
@@ -25,6 +26,8 @@
 #include "clang/Analysis/DomainSpecific/ObjCNoReturn.h"
 #include "clang/Analysis/FlowSensitive/DataflowWorklist.h"
 #include "clang/Basic/LLVM.h"
+#include "clang/Basic/TargetBuiltins.h"
+#include "clang/Basic/TargetInfo.h"
 #include "llvm/ADT/BitVector.h"
 #include "llvm/ADT/DenseMap.h"
 #include "llvm/ADT/PackedVector.h"
@@ -62,7 +65,8 @@ static bool isTrackedVar(const VarDecl *vd, const DeclContext *dc) {
     QualType ty = vd->getType();
     if (const auto *RD = ty->getAsRecordDecl())
       return recordIsNotEmpty(RD);
-    return ty->isScalarType() || ty->isVectorType() || ty->isRVVSizelessBuiltinType();
+    return ty->isScalarType() || ty->isVectorType() ||
+           ty->isRVVSizelessBuiltinType() || ty->isBoscZttType();
   }
   return false;
 }
@@ -424,6 +428,28 @@ static bool hasTrivialBody(const CallExpr *CE) {
 }
 
 void ClassifyRefs::VisitCallExpr(const CallExpr *CE) {
+  // boscztt destinations are deliberately lvalues. Descriptor setters
+  // initialize them, whereas other instructions read the old descriptor/data.
+  if (DC->getParentASTContext().getTargetInfo().getTriple().isRISCV()) {
+    StringRef Form;
+    switch (CE->getBuiltinCallee()) {
+#define RISCV_ZTT_INTRINSIC(NAME, OPCODE, FORM, SIG) \
+    case RISCV::BI##NAME: Form = #FORM; break;
+#include "llvm/IR/IntrinsicsRISCVBoscZtt.def"
+#undef RISCV_ZTT_INTRINSIC
+    default: break;
+    }
+    if (Form == "set") {
+      classify(CE->getArg(0), Init);
+      return;
+    }
+    if (Form == "matrix" || Form == "zip") {
+      classify(CE->getArg(0), Use);
+      if (Form == "zip")
+        classify(CE->getArg(1), Use);
+      return;
+    }
+  }
   // Classify arguments to std::move as used.
   if (CE->isCallToStdMove()) {
     // RecordTypes are handled in SemaDeclCXX.cpp.

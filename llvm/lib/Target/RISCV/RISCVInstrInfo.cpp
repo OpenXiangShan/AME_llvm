@@ -678,7 +678,11 @@ void RISCVInstrInfo::storeRegToStackSlot(MachineBasicBlock &MBB,
   Align Alignment = MFI.getObjectAlign(FI);
 
   unsigned Opcode;
-  if (RISCV::GPRRegClass.hasSubClassEq(RC)) {
+  if (RISCV::ZTTMAnyRegClass.hasSubClassEq(RC)) {
+    Opcode = RISCV::ZTT_SPILL_M;
+  } else if (RISCV::ZTTAAnyRegClass.hasSubClassEq(RC)) {
+    Opcode = RISCV::ZTT_SPILL_A;
+  } else if (RISCV::GPRRegClass.hasSubClassEq(RC)) {
     Opcode = RegInfo.getRegSizeInBits(RISCV::GPRRegClass) == 32 ? RISCV::SW
                                                                 : RISCV::SD;
   } else if (RISCV::GPRF16RegClass.hasSubClassEq(RC)) {
@@ -770,7 +774,11 @@ void RISCVInstrInfo::loadRegFromStackSlot(MachineBasicBlock &MBB,
       Flags & MachineInstr::FrameDestroy ? MBB.findDebugLoc(I) : DebugLoc();
 
   unsigned Opcode;
-  if (RISCV::GPRRegClass.hasSubClassEq(RC)) {
+  if (RISCV::ZTTMAnyRegClass.hasSubClassEq(RC)) {
+    Opcode = RISCV::ZTT_RELOAD_M;
+  } else if (RISCV::ZTTAAnyRegClass.hasSubClassEq(RC)) {
+    Opcode = RISCV::ZTT_RELOAD_A;
+  } else if (RISCV::GPRRegClass.hasSubClassEq(RC)) {
     Opcode = RegInfo.getRegSizeInBits(RISCV::GPRRegClass) == 32 ? RISCV::LW
                                                                 : RISCV::LD;
   } else if (RISCV::GPRF16RegClass.hasSubClassEq(RC)) {

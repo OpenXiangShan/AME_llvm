@@ -270,6 +270,9 @@ def AnyKindElementConstraint {
   int Integer = 1;
   int Float   = 2;
   int Pointer = 3;
+  // Match the named target extension type, with any valid type parameters.
+  int RISCVZttMatrix = 4;
+  int RISCVZttAccumulator = 5;
 }
 
 // Placeholder to encode the overload index of the current type. We encode a

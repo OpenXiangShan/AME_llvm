@@ -1,0 +1,3461 @@
+[
+  {
+    "name": "ame.acquire",
+    "args": [
+      "rd",
+      "rs1"
+    ],
+    "fields": {
+      "rs1": [
+        19,
+        15
+      ],
+      "rd": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa490002b",
+    "mask": "0xfff0707f",
+    "page": 49,
+    "form": "acquire",
+    "asm": "ame.acquire rd, rs1"
+  },
+  {
+    "name": "ame.release",
+    "args": [],
+    "fields": {},
+    "match": "0xa4a0002b",
+    "mask": "0xffffffff",
+    "page": 50,
+    "form": "release",
+    "asm": "ame.release"
+  },
+  {
+    "name": "agettyp",
+    "args": [
+      "rd",
+      "ad"
+    ],
+    "fields": {
+      "ad": [
+        19,
+        15
+      ],
+      "rd": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa200002b",
+    "mask": "0xfff0707f",
+    "page": 51,
+    "form": "get",
+    "asm": "agettyp rd, ad"
+  },
+  {
+    "name": "asettyp",
+    "args": [
+      "ad",
+      "rs1"
+    ],
+    "fields": {
+      "rs1": [
+        19,
+        15
+      ],
+      "ad": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa210002b",
+    "mask": "0xfff0707f",
+    "page": 52,
+    "form": "set",
+    "asm": "asettyp ad, rs1"
+  },
+  {
+    "name": "mabs.ew",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa240002b",
+    "mask": "0xfff0707f",
+    "page": 53,
+    "form": "matrix",
+    "asm": "mabs.ew md, ms1"
+  },
+  {
+    "name": "mabsdiff.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x0000002b",
+    "mask": "0xfe00707f",
+    "page": 54,
+    "form": "matrix",
+    "asm": "mabsdiff.ew md, ms1, ms2"
+  },
+  {
+    "name": "mabsdiff.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x0200002b",
+    "mask": "0xfe00707f",
+    "page": 55,
+    "form": "matrix",
+    "asm": "mabsdiff.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "madd.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x0400002b",
+    "mask": "0xfe00707f",
+    "page": 56,
+    "form": "matrix",
+    "asm": "madd.ew md, ms1, ms2"
+  },
+  {
+    "name": "madd.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x0600002b",
+    "mask": "0xfe00707f",
+    "page": 57,
+    "form": "matrix",
+    "asm": "madd.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mand.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x3400002b",
+    "mask": "0xfe00707f",
+    "page": 58,
+    "form": "matrix",
+    "asm": "mand.ew md, ms1, ms2"
+  },
+  {
+    "name": "mand.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x3600002b",
+    "mask": "0xfe00707f",
+    "page": 59,
+    "form": "matrix",
+    "asm": "mand.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mandnot.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x3800002b",
+    "mask": "0xfe00707f",
+    "page": 60,
+    "form": "matrix",
+    "asm": "mandnot.ew md, ms1, ms2"
+  },
+  {
+    "name": "mandnot.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x3a00002b",
+    "mask": "0xfe00707f",
+    "page": 61,
+    "form": "matrix",
+    "asm": "mandnot.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mcmovge.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x5400002b",
+    "mask": "0xfe00707f",
+    "page": 62,
+    "form": "matrix",
+    "asm": "mcmovge.ew md, ms1, ms2"
+  },
+  {
+    "name": "mcmovlt.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x5600002b",
+    "mask": "0xfe00707f",
+    "page": 63,
+    "form": "matrix",
+    "asm": "mcmovlt.ew md, ms1, ms2"
+  },
+  {
+    "name": "mcmpge.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x5800002b",
+    "mask": "0xfe00707f",
+    "page": 64,
+    "form": "matrix",
+    "asm": "mcmpge.ew md, ms1, ms2"
+  },
+  {
+    "name": "mcmpge.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x5a00002b",
+    "mask": "0xfe00707f",
+    "page": 65,
+    "form": "matrix",
+    "asm": "mcmpge.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mcmplt.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x5c00002b",
+    "mask": "0xfe00707f",
+    "page": 66,
+    "form": "matrix",
+    "asm": "mcmplt.ew md, ms1, ms2"
+  },
+  {
+    "name": "mcmplt.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x5e00002b",
+    "mask": "0xfe00707f",
+    "page": 67,
+    "form": "matrix",
+    "asm": "mcmplt.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mcolbcast.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x6400002b",
+    "mask": "0xfe00707f",
+    "page": 68,
+    "form": "matrix",
+    "asm": "mcolbcast.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mcolgather.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x6600002b",
+    "mask": "0xfe00707f",
+    "page": 69,
+    "form": "matrix",
+    "asm": "mcolgather.ew md, ms1, ms2"
+  },
+  {
+    "name": "mcolid.ew",
+    "args": [
+      "md"
+    ],
+    "fields": {
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa601002b",
+    "mask": "0xfffff07f",
+    "page": 70,
+    "form": "matrix",
+    "asm": "mcolid.ew md"
+  },
+  {
+    "name": "mcolshift.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x6800002b",
+    "mask": "0xfe00707f",
+    "page": 71,
+    "form": "matrix",
+    "asm": "mcolshift.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mcolunzip.ew",
+    "args": [
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ]
+    },
+    "match": "0xc200002b",
+    "mask": "0xfe007fff",
+    "page": 72,
+    "form": "zip",
+    "asm": "mcolunzip.ew ms1, ms2"
+  },
+  {
+    "name": "mcolzip.ew",
+    "args": [
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ]
+    },
+    "match": "0xc400002b",
+    "mask": "0xfe007fff",
+    "page": 73,
+    "form": "zip",
+    "asm": "mcolzip.ew ms1, ms2"
+  },
+  {
+    "name": "mconv.ew",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa2d0002b",
+    "mask": "0xfff0707f",
+    "page": 74,
+    "form": "matrix",
+    "asm": "mconv.ew md, ms1"
+  },
+  {
+    "name": "mbcast.m.x",
+    "args": [
+      "md",
+      "rs1",
+      "rs2"
+    ],
+    "fields": {
+      "rs2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xb000002b",
+    "mask": "0xfe00707f",
+    "page": 75,
+    "form": "matrix",
+    "asm": "mbcast.m.x md, rs1, rs2"
+  },
+  {
+    "name": "mcos.ew",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa2e0002b",
+    "mask": "0xfff0707f",
+    "page": 76,
+    "form": "matrix",
+    "asm": "mcos.ew md, ms1"
+  },
+  {
+    "name": "mexp2.ew",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa2f0002b",
+    "mask": "0xfff0707f",
+    "page": 77,
+    "form": "matrix",
+    "asm": "mexp2.ew md, ms1"
+  },
+  {
+    "name": "mfrintm.ew",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa250002b",
+    "mask": "0xfff0707f",
+    "page": 78,
+    "form": "matrix",
+    "asm": "mfrintm.ew md, ms1"
+  },
+  {
+    "name": "mfrintn.ew",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa260002b",
+    "mask": "0xfff0707f",
+    "page": 79,
+    "form": "matrix",
+    "asm": "mfrintn.ew md, ms1"
+  },
+  {
+    "name": "mfrintp.ew",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa270002b",
+    "mask": "0xfff0707f",
+    "page": 80,
+    "form": "matrix",
+    "asm": "mfrintp.ew md, ms1"
+  },
+  {
+    "name": "mfrintz.ew",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa280002b",
+    "mask": "0xfff0707f",
+    "page": 81,
+    "form": "matrix",
+    "asm": "mfrintz.ew md, ms1"
+  },
+  {
+    "name": "mgettyp",
+    "args": [
+      "rd",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "rd": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa220002b",
+    "mask": "0xfff0707f",
+    "page": 82,
+    "form": "get",
+    "asm": "mgettyp rd, ms1"
+  },
+  {
+    "name": "mhdiff.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x0800002b",
+    "mask": "0xfe00707f",
+    "page": 83,
+    "form": "matrix",
+    "asm": "mhdiff.ew md, ms1, ms2"
+  },
+  {
+    "name": "mhdiff.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x0a00002b",
+    "mask": "0xfe00707f",
+    "page": 84,
+    "form": "matrix",
+    "asm": "mhdiff.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mldexp.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x7e00002b",
+    "mask": "0xfe00707f",
+    "page": 85,
+    "form": "matrix",
+    "asm": "mldexp.ew md, ms1, ms2"
+  },
+  {
+    "name": "mldexp.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x8000002b",
+    "mask": "0xfe00707f",
+    "page": 86,
+    "form": "matrix",
+    "asm": "mldexp.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mldexpacc.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x8200002b",
+    "mask": "0xfe00707f",
+    "page": 87,
+    "form": "matrix",
+    "asm": "mldexpacc.ew md, ms1, ms2"
+  },
+  {
+    "name": "mldexpacc.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x8400002b",
+    "mask": "0xfe00707f",
+    "page": 88,
+    "form": "matrix",
+    "asm": "mldexpacc.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mlog2.ew",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa300002b",
+    "mask": "0xfff0707f",
+    "page": 89,
+    "form": "matrix",
+    "asm": "mlog2.ew md, ms1"
+  },
+  {
+    "name": "mlog2sub.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x8600002b",
+    "mask": "0xfe00707f",
+    "page": 90,
+    "form": "matrix",
+    "asm": "mlog2sub.ew md, ms1, ms2"
+  },
+  {
+    "name": "mlog2sub.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x8800002b",
+    "mask": "0xfe00707f",
+    "page": 91,
+    "form": "matrix",
+    "asm": "mlog2sub.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mls.1r",
+    "args": [
+      "md",
+      "rs1"
+    ],
+    "fields": {
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa360002b",
+    "mask": "0xfff0707f",
+    "page": 92,
+    "form": "matrix",
+    "asm": "mls.1r md, rs1"
+  },
+  {
+    "name": "mls.cm",
+    "args": [
+      "md",
+      "rs1"
+    ],
+    "fields": {
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa370002b",
+    "mask": "0xfff0707f",
+    "page": 93,
+    "form": "matrix",
+    "asm": "mls.cm md, rs1"
+  },
+  {
+    "name": "mls.rm",
+    "args": [
+      "md",
+      "rs1"
+    ],
+    "fields": {
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa380002b",
+    "mask": "0xfff0707f",
+    "page": 94,
+    "form": "matrix",
+    "asm": "mls.rm md, rs1"
+  },
+  {
+    "name": "mls.st",
+    "args": [
+      "md",
+      "rs1",
+      "rs2"
+    ],
+    "fields": {
+      "rs2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa800002b",
+    "mask": "0xfe00707f",
+    "page": 95,
+    "form": "matrix",
+    "asm": "mls.st md, (rs1), rs2"
+  },
+  {
+    "name": "mls.tst",
+    "args": [
+      "md",
+      "rs1",
+      "rs2"
+    ],
+    "fields": {
+      "rs2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xaa00002b",
+    "mask": "0xfe00707f",
+    "page": 96,
+    "form": "matrix",
+    "asm": "mls.tst md, (rs1), rs2"
+  },
+  {
+    "name": "mmax.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x0c00002b",
+    "mask": "0xfe00707f",
+    "page": 97,
+    "form": "matrix",
+    "asm": "mmax.ew md, ms1, ms2"
+  },
+  {
+    "name": "mmax.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x0e00002b",
+    "mask": "0xfe00707f",
+    "page": 98,
+    "form": "matrix",
+    "asm": "mmax.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mmean.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x1000002b",
+    "mask": "0xfe00707f",
+    "page": 99,
+    "form": "matrix",
+    "asm": "mmean.ew md, ms1, ms2"
+  },
+  {
+    "name": "mmean.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x1200002b",
+    "mask": "0xfe00707f",
+    "page": 100,
+    "form": "matrix",
+    "asm": "mmean.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mmin.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x1400002b",
+    "mask": "0xfe00707f",
+    "page": 101,
+    "form": "matrix",
+    "asm": "mmin.ew md, ms1, ms2"
+  },
+  {
+    "name": "mmin.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x1600002b",
+    "mask": "0xfe00707f",
+    "page": 102,
+    "form": "matrix",
+    "asm": "mmin.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mmov.m.a",
+    "args": [
+      "md",
+      "acc"
+    ],
+    "fields": {
+      "acc": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa3c0002b",
+    "mask": "0xfff0707f",
+    "page": 103,
+    "form": "matrix",
+    "asm": "mmov.m.a md, acc"
+  },
+  {
+    "name": "mmov.a.m",
+    "args": [
+      "acc",
+      "ms"
+    ],
+    "fields": {
+      "ms": [
+        19,
+        15
+      ],
+      "acc": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa3d0002b",
+    "mask": "0xfff0707f",
+    "page": 104,
+    "form": "matrix",
+    "asm": "mmov.a.m acc, ms"
+  },
+  {
+    "name": "mmov.m.m",
+    "args": [
+      "md",
+      "ms"
+    ],
+    "fields": {
+      "ms": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa3e0002b",
+    "mask": "0xfff0707f",
+    "page": 105,
+    "form": "matrix",
+    "asm": "mmov.m.m md, ms"
+  },
+  {
+    "name": "mmove8.m.x",
+    "args": [
+      "md",
+      "rs2",
+      "rs1"
+    ],
+    "fields": {
+      "rs1": [
+        24,
+        20
+      ],
+      "rs2": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xb200002b",
+    "mask": "0xfe00707f",
+    "page": 106,
+    "form": "matrix",
+    "asm": "mmove8.m.x md, rs2, rs1"
+  },
+  {
+    "name": "mmove16.m.x",
+    "args": [
+      "md",
+      "rs2",
+      "rs1"
+    ],
+    "fields": {
+      "rs1": [
+        24,
+        20
+      ],
+      "rs2": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xb400002b",
+    "mask": "0xfe00707f",
+    "page": 107,
+    "form": "matrix",
+    "asm": "mmove16.m.x md, rs2, rs1"
+  },
+  {
+    "name": "mmove32.m.x",
+    "args": [
+      "md",
+      "rs2",
+      "rs1"
+    ],
+    "fields": {
+      "rs1": [
+        24,
+        20
+      ],
+      "rs2": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xb600002b",
+    "mask": "0xfe00707f",
+    "page": 108,
+    "form": "matrix",
+    "asm": "mmove32.m.x md, rs2, rs1"
+  },
+  {
+    "name": "mmove64.m.x",
+    "args": [
+      "md",
+      "rs2",
+      "rs1"
+    ],
+    "fields": {
+      "rs1": [
+        24,
+        20
+      ],
+      "rs2": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xb800002b",
+    "mask": "0xfe00707f",
+    "page": 109,
+    "form": "matrix",
+    "asm": "mmove64.m.x md, rs2, rs1"
+  },
+  {
+    "name": "mmove8.x.m",
+    "args": [
+      "rd",
+      "ms2",
+      "rs1"
+    ],
+    "fields": {
+      "rs1": [
+        24,
+        20
+      ],
+      "ms2": [
+        19,
+        15
+      ],
+      "rd": [
+        11,
+        7
+      ]
+    },
+    "match": "0xba00002b",
+    "mask": "0xfe00707f",
+    "page": 110,
+    "form": "extract",
+    "asm": "mmove8.x.m rd, ms2, rs1"
+  },
+  {
+    "name": "mmove16.x.m",
+    "args": [
+      "rd",
+      "ms2",
+      "rs1"
+    ],
+    "fields": {
+      "rs1": [
+        24,
+        20
+      ],
+      "ms2": [
+        19,
+        15
+      ],
+      "rd": [
+        11,
+        7
+      ]
+    },
+    "match": "0xbc00002b",
+    "mask": "0xfe00707f",
+    "page": 111,
+    "form": "extract",
+    "asm": "mmove16.x.m rd, ms2, rs1"
+  },
+  {
+    "name": "mmove32.x.m",
+    "args": [
+      "rd",
+      "ms2",
+      "rs1"
+    ],
+    "fields": {
+      "rs1": [
+        24,
+        20
+      ],
+      "ms2": [
+        19,
+        15
+      ],
+      "rd": [
+        11,
+        7
+      ]
+    },
+    "match": "0xbe00002b",
+    "mask": "0xfe00707f",
+    "page": 112,
+    "form": "extract",
+    "asm": "mmove32.x.m rd, ms2, rs1"
+  },
+  {
+    "name": "mmove64.x.m",
+    "args": [
+      "rd",
+      "ms2",
+      "rs1"
+    ],
+    "fields": {
+      "rs1": [
+        24,
+        20
+      ],
+      "ms2": [
+        19,
+        15
+      ],
+      "rd": [
+        11,
+        7
+      ]
+    },
+    "match": "0xc000002b",
+    "mask": "0xfe00707f",
+    "page": 113,
+    "form": "extract",
+    "asm": "mmove64.x.m rd, ms2, rs1"
+  },
+  {
+    "name": "mmul.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x1800002b",
+    "mask": "0xfe00707f",
+    "page": 114,
+    "form": "matrix",
+    "asm": "mmul.ew md, ms1, ms2"
+  },
+  {
+    "name": "mmul.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x1a00002b",
+    "mask": "0xfe00707f",
+    "page": 115,
+    "form": "matrix",
+    "asm": "mmul.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mmulacc.2d",
+    "args": [
+      "acc",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "acc": [
+        11,
+        7
+      ]
+    },
+    "match": "0x9400002b",
+    "mask": "0xfe00707f",
+    "page": 116,
+    "form": "matrix",
+    "asm": "mmulacc.2d acc, ms1, ms2"
+  },
+  {
+    "name": "mmulacc.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x1c00002b",
+    "mask": "0xfe00707f",
+    "page": 117,
+    "form": "matrix",
+    "asm": "mmulacc.ew md, ms1, ms2"
+  },
+  {
+    "name": "mmulacc.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x1e00002b",
+    "mask": "0xfe00707f",
+    "page": 118,
+    "form": "matrix",
+    "asm": "mmulacc.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mmulaccneg.2d",
+    "args": [
+      "acc",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "acc": [
+        11,
+        7
+      ]
+    },
+    "match": "0x9600002b",
+    "mask": "0xfe00707f",
+    "page": 119,
+    "form": "matrix",
+    "asm": "mmulaccneg.2d acc, ms1, ms2"
+  },
+  {
+    "name": "mmulaccneg.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x2000002b",
+    "mask": "0xfe00707f",
+    "page": 120,
+    "form": "matrix",
+    "asm": "mmulaccneg.ew md, ms1, ms2"
+  },
+  {
+    "name": "mmulaccneg.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x2200002b",
+    "mask": "0xfe00707f",
+    "page": 121,
+    "form": "matrix",
+    "asm": "mmulaccneg.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mmuladd.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x2400002b",
+    "mask": "0xfe00707f",
+    "page": 122,
+    "form": "matrix",
+    "asm": "mmuladd.ew md, ms1, ms2"
+  },
+  {
+    "name": "mmuladd.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x2600002b",
+    "mask": "0xfe00707f",
+    "page": 123,
+    "form": "matrix",
+    "asm": "mmuladd.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mmulatacc.2d",
+    "args": [
+      "acc",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "acc": [
+        11,
+        7
+      ]
+    },
+    "match": "0x9a00002b",
+    "mask": "0xfe00707f",
+    "page": 124,
+    "form": "matrix",
+    "asm": "mmulatacc.2d acc, ms1, ms2"
+  },
+  {
+    "name": "mmulataccneg.2d",
+    "args": [
+      "acc",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "acc": [
+        11,
+        7
+      ]
+    },
+    "match": "0x9c00002b",
+    "mask": "0xfe00707f",
+    "page": 125,
+    "form": "matrix",
+    "asm": "mmulataccneg.2d acc, ms1, ms2"
+  },
+  {
+    "name": "mmulbtacc.2d",
+    "args": [
+      "acc",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "acc": [
+        11,
+        7
+      ]
+    },
+    "match": "0x9e00002b",
+    "mask": "0xfe00707f",
+    "page": 126,
+    "form": "matrix",
+    "asm": "mmulbtacc.2d acc, ms1, ms2"
+  },
+  {
+    "name": "mmulbtaccneg.2d",
+    "args": [
+      "acc",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "acc": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa000002b",
+    "mask": "0xfe00707f",
+    "page": 127,
+    "form": "matrix",
+    "asm": "mmulbtaccneg.2d acc, ms1, ms2"
+  },
+  {
+    "name": "mmulneg.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x2800002b",
+    "mask": "0xfe00707f",
+    "page": 128,
+    "form": "matrix",
+    "asm": "mmulneg.ew md, ms1, ms2"
+  },
+  {
+    "name": "mmulneg.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x2a00002b",
+    "mask": "0xfe00707f",
+    "page": 129,
+    "form": "matrix",
+    "asm": "mmulneg.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mmulsub.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x2c00002b",
+    "mask": "0xfe00707f",
+    "page": 130,
+    "form": "matrix",
+    "asm": "mmulsub.ew md, ms1, ms2"
+  },
+  {
+    "name": "mmulsub.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x2e00002b",
+    "mask": "0xfe00707f",
+    "page": 131,
+    "form": "matrix",
+    "asm": "mmulsub.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mor.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x3c00002b",
+    "mask": "0xfe00707f",
+    "page": 132,
+    "form": "matrix",
+    "asm": "mor.ew md, ms1, ms2"
+  },
+  {
+    "name": "mor.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x3e00002b",
+    "mask": "0xfe00707f",
+    "page": 133,
+    "form": "matrix",
+    "asm": "mor.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mornot.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x4000002b",
+    "mask": "0xfe00707f",
+    "page": 134,
+    "form": "matrix",
+    "asm": "mornot.ew md, ms1, ms2"
+  },
+  {
+    "name": "mornot.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x4200002b",
+    "mask": "0xfe00707f",
+    "page": 135,
+    "form": "matrix",
+    "asm": "mornot.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mpack.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x7a00002b",
+    "mask": "0xfe00707f",
+    "page": 136,
+    "form": "matrix",
+    "asm": "mpack.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mprefixadd.col",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa3f0002b",
+    "mask": "0xfff0707f",
+    "page": 137,
+    "form": "matrix",
+    "asm": "mprefixadd.col md, ms1"
+  },
+  {
+    "name": "mprefixadd.row",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa400002b",
+    "mask": "0xfff0707f",
+    "page": 138,
+    "form": "matrix",
+    "asm": "mprefixadd.row md, ms1"
+  },
+  {
+    "name": "mprefixmax.col",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa410002b",
+    "mask": "0xfff0707f",
+    "page": 139,
+    "form": "matrix",
+    "asm": "mprefixmax.col md, ms1"
+  },
+  {
+    "name": "mprefixmax.row",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa420002b",
+    "mask": "0xfff0707f",
+    "page": 140,
+    "form": "matrix",
+    "asm": "mprefixmax.row md, ms1"
+  },
+  {
+    "name": "mrdexp.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x8a00002b",
+    "mask": "0xfe00707f",
+    "page": 141,
+    "form": "matrix",
+    "asm": "mrdexp.ew md, ms1, ms2"
+  },
+  {
+    "name": "mrdexpacc.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x8c00002b",
+    "mask": "0xfe00707f",
+    "page": 142,
+    "form": "matrix",
+    "asm": "mrdexpacc.ew md, ms1, ms2"
+  },
+  {
+    "name": "mrec.ew",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa310002b",
+    "mask": "0xfff0707f",
+    "page": 143,
+    "form": "matrix",
+    "asm": "mrec.ew md, ms1"
+  },
+  {
+    "name": "mreduceadd.col",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa430002b",
+    "mask": "0xfff0707f",
+    "page": 144,
+    "form": "matrix",
+    "asm": "mreduceadd.col md, ms1"
+  },
+  {
+    "name": "mreduceadd.row",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa440002b",
+    "mask": "0xfff0707f",
+    "page": 145,
+    "form": "matrix",
+    "asm": "mreduceadd.row md, ms1"
+  },
+  {
+    "name": "mreducemax.col",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa450002b",
+    "mask": "0xfff0707f",
+    "page": 146,
+    "form": "matrix",
+    "asm": "mreducemax.col md, ms1"
+  },
+  {
+    "name": "mreducemax.row",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa460002b",
+    "mask": "0xfff0707f",
+    "page": 147,
+    "form": "matrix",
+    "asm": "mreducemax.row md, ms1"
+  },
+  {
+    "name": "mreducemin.col",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa470002b",
+    "mask": "0xfff0707f",
+    "page": 148,
+    "form": "matrix",
+    "asm": "mreducemin.col md, ms1"
+  },
+  {
+    "name": "mreducemin.row",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa480002b",
+    "mask": "0xfff0707f",
+    "page": 149,
+    "form": "matrix",
+    "asm": "mreducemin.row md, ms1"
+  },
+  {
+    "name": "mrowbcast.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x6a00002b",
+    "mask": "0xfe00707f",
+    "page": 150,
+    "form": "matrix",
+    "asm": "mrowbcast.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mrowgather.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x6c00002b",
+    "mask": "0xfe00707f",
+    "page": 151,
+    "form": "matrix",
+    "asm": "mrowgather.ew md, ms1, ms2"
+  },
+  {
+    "name": "mrowid.ew",
+    "args": [
+      "md"
+    ],
+    "fields": {
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa601802b",
+    "mask": "0xfffff07f",
+    "page": 152,
+    "form": "matrix",
+    "asm": "mrowid.ew md"
+  },
+  {
+    "name": "mrowshift.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x6e00002b",
+    "mask": "0xfe00707f",
+    "page": 153,
+    "form": "matrix",
+    "asm": "mrowshift.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mrowunzip.ew",
+    "args": [
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ]
+    },
+    "match": "0xc600002b",
+    "mask": "0xfe007fff",
+    "page": 154,
+    "form": "zip",
+    "asm": "mrowunzip.ew ms1, ms2"
+  },
+  {
+    "name": "mrowzip.ew",
+    "args": [
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ]
+    },
+    "match": "0x7000002b",
+    "mask": "0xfe007fff",
+    "page": 155,
+    "form": "zip",
+    "asm": "mrowzip.ew ms1, ms2"
+  },
+  {
+    "name": "mrsqrt.ew",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa320002b",
+    "mask": "0xfff0707f",
+    "page": 156,
+    "form": "matrix",
+    "asm": "mrsqrt.ew md, ms1"
+  },
+  {
+    "name": "mrowscatadd.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x7200002b",
+    "mask": "0xfe00707f",
+    "page": 157,
+    "form": "matrix",
+    "asm": "mrowscatadd.ew md, ms1, ms2"
+  },
+  {
+    "name": "mcolscatadd.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x7400002b",
+    "mask": "0xfe00707f",
+    "page": 158,
+    "form": "matrix",
+    "asm": "mcolscatadd.ew md, ms1, ms2"
+  },
+  {
+    "name": "mrowscatmax.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x7600002b",
+    "mask": "0xfe00707f",
+    "page": 159,
+    "form": "matrix",
+    "asm": "mrowscatmax.ew md, ms1, ms2"
+  },
+  {
+    "name": "mcolscatmax.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x7800002b",
+    "mask": "0xfe00707f",
+    "page": 160,
+    "form": "matrix",
+    "asm": "mcolscatmax.ew md, ms1, ms2"
+  },
+  {
+    "name": "mselge.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x6000002b",
+    "mask": "0xfe00707f",
+    "page": 161,
+    "form": "matrix",
+    "asm": "mselge.ew md, ms1, ms2"
+  },
+  {
+    "name": "msellt.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x6200002b",
+    "mask": "0xfe00707f",
+    "page": 162,
+    "form": "matrix",
+    "asm": "msellt.ew md, ms1, ms2"
+  },
+  {
+    "name": "msettyp",
+    "args": [
+      "md",
+      "rs1"
+    ],
+    "fields": {
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa230002b",
+    "mask": "0xfff0707f",
+    "page": 163,
+    "form": "set",
+    "asm": "msettyp md, rs1"
+  },
+  {
+    "name": "msin.ew",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa330002b",
+    "mask": "0xfff0707f",
+    "page": 164,
+    "form": "matrix",
+    "asm": "msin.ew md, ms1"
+  },
+  {
+    "name": "msll.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x4400002b",
+    "mask": "0xfe00707f",
+    "page": 165,
+    "form": "matrix",
+    "asm": "msll.ew md, ms1, ms2"
+  },
+  {
+    "name": "msll.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x4600002b",
+    "mask": "0xfe00707f",
+    "page": 166,
+    "form": "matrix",
+    "asm": "msll.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "msqrt.ew",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa340002b",
+    "mask": "0xfff0707f",
+    "page": 167,
+    "form": "matrix",
+    "asm": "msqrt.ew md, ms1"
+  },
+  {
+    "name": "msra.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x4800002b",
+    "mask": "0xfe00707f",
+    "page": 168,
+    "form": "matrix",
+    "asm": "msra.ew md, ms1, ms2"
+  },
+  {
+    "name": "msra.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x4a00002b",
+    "mask": "0xfe00707f",
+    "page": 169,
+    "form": "matrix",
+    "asm": "msra.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "msrl.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x4c00002b",
+    "mask": "0xfe00707f",
+    "page": 170,
+    "form": "matrix",
+    "asm": "msrl.ew md, ms1, ms2"
+  },
+  {
+    "name": "msrl.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x4e00002b",
+    "mask": "0xfe00707f",
+    "page": 171,
+    "form": "matrix",
+    "asm": "msrl.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mss.1r",
+    "args": [
+      "ms1",
+      "rs1"
+    ],
+    "fields": {
+      "rs1": [
+        19,
+        15
+      ],
+      "ms1": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa390002b",
+    "mask": "0xfff0707f",
+    "page": 172,
+    "form": "store",
+    "asm": "mss.1r ms1, rs1"
+  },
+  {
+    "name": "mss.cm",
+    "args": [
+      "ms1",
+      "rs1"
+    ],
+    "fields": {
+      "rs1": [
+        19,
+        15
+      ],
+      "ms1": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa3a0002b",
+    "mask": "0xfff0707f",
+    "page": 173,
+    "form": "store",
+    "asm": "mss.cm ms1, rs1"
+  },
+  {
+    "name": "mss.rm",
+    "args": [
+      "ms1",
+      "rs1"
+    ],
+    "fields": {
+      "rs1": [
+        19,
+        15
+      ],
+      "ms1": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa3b0002b",
+    "mask": "0xfff0707f",
+    "page": 174,
+    "form": "store",
+    "asm": "mss.rm ms1, rs1"
+  },
+  {
+    "name": "mss.st",
+    "args": [
+      "ms1",
+      "rs1",
+      "rs2"
+    ],
+    "fields": {
+      "rs2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "ms1": [
+        11,
+        7
+      ]
+    },
+    "match": "0xac00002b",
+    "mask": "0xfe00707f",
+    "page": 175,
+    "form": "store",
+    "asm": "mss.st ms1, (rs1), rs2"
+  },
+  {
+    "name": "mss.tst",
+    "args": [
+      "ms1",
+      "rs1",
+      "rs2"
+    ],
+    "fields": {
+      "rs2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "ms1": [
+        11,
+        7
+      ]
+    },
+    "match": "0xae00002b",
+    "mask": "0xfe00707f",
+    "page": 176,
+    "form": "store",
+    "asm": "mss.tst ms1, (rs1), rs2"
+  },
+  {
+    "name": "msub.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x3000002b",
+    "mask": "0xfe00707f",
+    "page": 177,
+    "form": "matrix",
+    "asm": "msub.ew md, ms1, ms2"
+  },
+  {
+    "name": "msub.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x3200002b",
+    "mask": "0xfe00707f",
+    "page": 178,
+    "form": "matrix",
+    "asm": "msub.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "msublog2.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x8e00002b",
+    "mask": "0xfe00707f",
+    "page": 179,
+    "form": "matrix",
+    "asm": "msublog2.ew md, ms1, ms2"
+  },
+  {
+    "name": "msublog2.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x9000002b",
+    "mask": "0xfe00707f",
+    "page": 180,
+    "form": "matrix",
+    "asm": "msublog2.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mtanh.ew",
+    "args": [
+      "md",
+      "ms1"
+    ],
+    "fields": {
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa350002b",
+    "mask": "0xfff0707f",
+    "page": 181,
+    "form": "matrix",
+    "asm": "mtanh.ew md, ms1"
+  },
+  {
+    "name": "munpack.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x7c00002b",
+    "mask": "0xfe00707f",
+    "page": 182,
+    "form": "matrix",
+    "asm": "munpack.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mxor.ew",
+    "args": [
+      "md",
+      "ms1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "ms1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x5000002b",
+    "mask": "0xfe00707f",
+    "page": 183,
+    "form": "matrix",
+    "asm": "mxor.ew md, ms1, ms2"
+  },
+  {
+    "name": "mxor.ew.x",
+    "args": [
+      "md",
+      "rs1",
+      "ms2"
+    ],
+    "fields": {
+      "ms2": [
+        24,
+        20
+      ],
+      "rs1": [
+        19,
+        15
+      ],
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0x5200002b",
+    "mask": "0xfe00707f",
+    "page": 184,
+    "form": "matrix",
+    "asm": "mxor.ew.x md, rs1, ms2"
+  },
+  {
+    "name": "mzero.2d.acc",
+    "args": [
+      "acc"
+    ],
+    "fields": {
+      "acc": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa600002b",
+    "mask": "0xfffff07f",
+    "page": 185,
+    "form": "matrix",
+    "asm": "mzero.2d.acc acc"
+  },
+  {
+    "name": "mzero.2d.m",
+    "args": [
+      "md"
+    ],
+    "fields": {
+      "md": [
+        11,
+        7
+      ]
+    },
+    "match": "0xa600802b",
+    "mask": "0xfffff07f",
+    "page": 186,
+    "form": "matrix",
+    "asm": "mzero.2d.m md"
+  }
+]

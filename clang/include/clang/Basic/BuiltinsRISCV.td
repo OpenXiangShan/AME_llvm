@@ -291,3 +291,5 @@ include "clang/Basic/BuiltinsRISCVXAndes.td"
 // MIPS extensions.
 //===----------------------------------------------------------------------===//
 include "clang/Basic/BuiltinsRISCVXMIPS.td"
+
+include "clang/Basic/BuiltinsRISCVBoscZtt.td"

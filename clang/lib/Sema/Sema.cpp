@@ -566,6 +566,12 @@ void Sema::Initialize() {
 #include "clang/Basic/RISCVVTypes.def"
   }
 
+  if (Context.getTargetInfo().getTriple().isRISCV()) {
+#define BOSCZTT_TYPE(Name, Id, SingletonId) \
+  addImplicitTypedef(Name, Context.SingletonId);
+#include "clang/Basic/RISCVBoscZttTypes.def"
+  }
+
   if (Context.getTargetInfo().getTriple().isWasm() &&
       Context.getTargetInfo().hasFeature("reference-types")) {
 #define WASM_TYPE(Name, Id, SingletonId)                                       \
@@ -2391,6 +2397,15 @@ void Sema::checkTypeSupport(QualType Ty, SourceLocation Loc, ValueDecl *D) {
       }
       if (D)
         targetDiag(D->getLocation(), diag::note_defined_here, FD) << D;
+    }
+
+    if (Ty->isBoscZttType() && FD) {
+      llvm::StringMap<bool> CallerFeatureMap;
+      Context.getFunctionFeatureMap(CallerFeatureMap, FD);
+      if (RISCV().checkBoscZttTypeSupport(Ty, Loc, CallerFeatureMap)) {
+        if (D)
+          D->setInvalidDecl();
+      }
     }
 
     if (TI.hasRISCVVTypes() && Ty->isRVVSizelessBuiltinType() && FD) {

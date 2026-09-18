@@ -49,6 +49,7 @@
 #include "llvm/Support/InstructionCost.h"
 #include "llvm/Support/KnownBits.h"
 #include "llvm/Support/MathExtras.h"
+#include "llvm/Support/RISCVBoscZtt.h"
 #include "llvm/Support/raw_ostream.h"
 #include <optional>
 
@@ -170,6 +171,26 @@ RISCVTargetLowering::RISCVTargetLowering(const TargetMachine &TM,
 
   // Set up the register classes.
   addRegisterClass(XLenVT, &RISCV::GPRRegClass);
+
+  if (STI.hasVendorBoscZtt()) {
+    addRegisterClass(MVT::riscv_ztt_m1, &RISCV::ZTTMRRegClass);
+    addRegisterClass(MVT::riscv_ztt_m2, &RISCV::ZTTMR2RegClass);
+    addRegisterClass(MVT::riscv_ztt_m4, &RISCV::ZTTMR4RegClass);
+    addRegisterClass(MVT::riscv_ztt_m8, &RISCV::ZTTMR8RegClass);
+    addRegisterClass(MVT::riscv_ztt_m16, &RISCV::ZTTMR16RegClass);
+    addRegisterClass(MVT::riscv_ztt_m32, &RISCV::ZTTMR32RegClass);
+    addRegisterClass(MVT::riscv_ztt_a1, &RISCV::ZTTARRegClass);
+    addRegisterClass(MVT::riscv_ztt_a2, &RISCV::ZTTAR2RegClass);
+    addRegisterClass(MVT::riscv_ztt_a4, &RISCV::ZTTAR4RegClass);
+    addRegisterClass(MVT::riscv_ztt_a8, &RISCV::ZTTAR8RegClass);
+    for (MVT VT : {MVT::riscv_ztt_m1, MVT::riscv_ztt_m2, MVT::riscv_ztt_m4,
+                   MVT::riscv_ztt_m8, MVT::riscv_ztt_m16, MVT::riscv_ztt_m32,
+                   MVT::riscv_ztt_a1, MVT::riscv_ztt_a2,
+                   MVT::riscv_ztt_a4, MVT::riscv_ztt_a8}) {
+      setOperationAction(ISD::SELECT, VT, Custom);
+      setOperationAction(ISD::SELECT_CC, VT, Expand);
+    }
+  }
 
   if (Subtarget.hasStdExtZfhmin())
     addRegisterClass(MVT::f16, &RISCV::FPR16RegClass);
@@ -10373,6 +10394,11 @@ SDValue RISCVTargetLowering::lowerSELECT(SDValue Op, SelectionDAG &DAG) const {
   SDLoc DL(Op);
   MVT VT = Op.getSimpleValueType();
   MVT XLenVT = Subtarget.getXLenVT();
+
+  if (VT >= MVT::riscv_ztt_m1 && VT <= MVT::riscv_ztt_a8)
+    return DAG.getNode(RISCVISD::SELECT_CC, DL, VT, CondV,
+                       DAG.getConstant(0, DL, XLenVT),
+                       DAG.getCondCode(ISD::SETNE), TrueV, FalseV);
 
   // Handle P extension packed types by bitcasting to an integer of
   // matching width and reusing the scalar selection mechanism.
@@ -25422,6 +25448,16 @@ RISCVTargetLowering::EmitInstrWithCustomInserter(MachineInstr &MI,
            "ReadCounterWide is only to be used on riscv32");
     return emitReadCounterWidePseudo(MI, BB);
   case RISCV::Select_GPR_Using_CC_GPR:
+  case RISCV::Select_ZTTMR_Using_CC_GPR:
+  case RISCV::Select_ZTTMR2_Using_CC_GPR:
+  case RISCV::Select_ZTTMR4_Using_CC_GPR:
+  case RISCV::Select_ZTTMR8_Using_CC_GPR:
+  case RISCV::Select_ZTTMR16_Using_CC_GPR:
+  case RISCV::Select_ZTTMR32_Using_CC_GPR:
+  case RISCV::Select_ZTTAR_Using_CC_GPR:
+  case RISCV::Select_ZTTAR2_Using_CC_GPR:
+  case RISCV::Select_ZTTAR4_Using_CC_GPR:
+  case RISCV::Select_ZTTAR8_Using_CC_GPR:
   case RISCV::Select_GPR_Using_CC_Imm5_Zibi:
   case RISCV::Select_GPR_Using_CC_SImm5_CV:
   case RISCV::Select_GPRNoX0_Using_CC_SImm5NonZero_QC:
@@ -26774,6 +26810,25 @@ std::pair<unsigned, const TargetRegisterClass *>
 RISCVTargetLowering::getRegForInlineAsmConstraint(const TargetRegisterInfo *TRI,
                                                   StringRef Constraint,
                                                   MVT VT) const {
+  // Clobbers must name the ZTT bank explicitly: XAIFET also spells its mask
+  // registers m0-m7, so the generic register-name search is ambiguous.
+  if (Subtarget.hasVendorBoscZtt() && Constraint.starts_with("{") &&
+      Constraint.ends_with("}")) {
+    std::string Lower = Constraint.drop_front().drop_back().lower();
+    StringRef Name(Lower);
+    bool Acc = Name.consume_front("acc");
+    bool Matrix = !Acc && Name.consume_front("m");
+    unsigned Index;
+    if ((Acc || Matrix) && !Name.getAsInteger(10, Index)) {
+      const auto Profile = RISCV::getBoscZttProfile(Subtarget.hasBoscZttAMEGem5());
+      if (VT != MVT::Other ||
+          Index >= (Acc ? Profile.AccRegisters : Profile.MRegisters))
+        return {0, nullptr};
+      return Acc ? std::make_pair(RISCV::ZTTA0 + Index, &RISCV::ZTTARRegClass)
+                 : std::make_pair(RISCV::ZTTM0 + Index, &RISCV::ZTTMRRegClass);
+    }
+  }
+
   // First, see if this is a constraint that directly corresponds to a RISC-V
   // register class.
   if (Constraint.size() == 1) {

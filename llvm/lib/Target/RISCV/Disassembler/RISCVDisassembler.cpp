@@ -96,6 +96,24 @@ static DecodeStatus DecodeSimpleRegisterClass(MCInst &Inst, uint32_t RegNo,
 constexpr auto DecodeGPRRegisterClass =
     DecodeSimpleRegisterClass<RISCV::X0, 32, /*RVELimit=*/16>;
 
+static DecodeStatus DecodeBoscZttMRegisterClass(
+    MCInst &Inst, uint32_t RegNo, uint64_t Address,
+    const MCDisassembler *Decoder) {
+  bool AMEGem5 = Decoder->getSubtargetInfo().hasFeature(RISCV::FeatureBoscZttAMEGem5);
+  if (RegNo >= (AMEGem5 ? 32U : 16U))
+    return MCDisassembler::Fail;
+  return DecodeSimpleRegisterClass<RISCV::ZTTM0, 32>(Inst, RegNo, Address, Decoder);
+}
+
+static DecodeStatus DecodeBoscZttARegisterClass(
+    MCInst &Inst, uint32_t RegNo, uint64_t Address,
+    const MCDisassembler *Decoder) {
+  bool AMEGem5 = Decoder->getSubtargetInfo().hasFeature(RISCV::FeatureBoscZttAMEGem5);
+  if (RegNo >= (AMEGem5 ? 4U : 8U))
+    return MCDisassembler::Fail;
+  return DecodeSimpleRegisterClass<RISCV::ZTTA0, 8>(Inst, RegNo, Address, Decoder);
+}
+
 static DecodeStatus DecodeGPRX1X5RegisterClass(MCInst &Inst, uint32_t RegNo,
                                                uint64_t Address,
                                                const MCDisassembler *Decoder) {

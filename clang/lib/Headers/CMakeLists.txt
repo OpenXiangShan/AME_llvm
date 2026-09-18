@@ -513,6 +513,8 @@ if(ARM IN_LIST LLVM_TARGETS_TO_BUILD OR AArch64 IN_LIST LLVM_TARGETS_TO_BUILD)
     )
 endif()
 if(RISCV IN_LIST LLVM_TARGETS_TO_BUILD)
+  clang_generate_header(-gen-riscv-boscztt-header BuiltinsRISCV.td RISCVBoscZtt.h)
+  list(APPEND riscv_generated_files "${CMAKE_CURRENT_BINARY_DIR}/RISCVBoscZtt.h")
   # Generate riscv_vector.h
   clang_generate_header(-gen-riscv-vector-header riscv_vector.td riscv_vector.h)
   list(APPEND riscv_generated_files

@@ -175,6 +175,22 @@ BitVector RISCVRegisterInfo::getReservedRegs(const MachineFunction &MF) const {
   BitVector Reserved(getNumRegs());
   auto &Subtarget = MF.getSubtarget<RISCVSubtarget>();
 
+  if (Subtarget.hasVendorBoscZtt()) {
+    markSuperRegs(Reserved, RISCV::X5_H);
+    markSuperRegs(Reserved, RISCV::X6_H);
+    markSuperRegs(Reserved, RISCV::X7_H);
+    if (Subtarget.hasBoscZttAMEGem5()) {
+      for (MCPhysReg Reg = RISCV::ZTTA4; Reg <= RISCV::ZTTA7; ++Reg)
+        markSuperRegs(Reserved, Reg);
+    } else {
+      for (MCPhysReg Reg = RISCV::ZTTM16; Reg <= RISCV::ZTTM31; ++Reg)
+        markSuperRegs(Reserved, Reg);
+    }
+  }
+  markSuperRegs(Reserved, RISCV::ZTT_STATE);
+  for (MCPhysReg Reg : RISCV::ZTTDescriptorsRegClass)
+    markSuperRegs(Reserved, Reg);
+
   for (size_t Reg = 0; Reg < getNumRegs(); Reg++) {
     // Mark any GPRs requested to be reserved as such
     if (Subtarget.isRegisterReservedByUser(Reg)) {

@@ -1034,6 +1034,12 @@ private:
 public:
   /// Describes why initialization failed.
   enum FailureKind {
+    /// Matrix registers require an explicit datatype descriptor.
+    FK_BoscZttValueInit,
+
+    /// Matrix register values have no addressable storage for reference binding.
+    FK_BoscZttReference,
+
     /// Too many initializers provided for a reference.
     FK_TooManyInitsForReference,
 

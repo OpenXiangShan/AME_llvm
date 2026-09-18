@@ -13650,6 +13650,14 @@ def warn_tcb_enforcement_violation : Warning<
   InGroup<DiagGroup<"tcb-enforcement">>;
 
 // RISC-V builtin required extension warning
+def err_boscztt_operand : Error<"invalid boscztt operand: %0">;
+def err_boscztt_profile_type : Error<
+  "boscztt type %0 is not available in the %1 profile">;
+def err_boscztt_profile_change : Error<
+  "a function using boscztt types cannot change the translation unit's matrix profile">;
+def err_boscztt_address : Error<
+  "boscztt register types cannot be used through pointers or references">;
+def err_boscztt_volatile : Error<"boscztt register types cannot be volatile">;
 def err_riscv_builtin_requires_extension : Error<
   "builtin requires%select{| at least one of the following extensions}0: %1">;
 def err_riscv_builtin_invalid_lmul : Error<

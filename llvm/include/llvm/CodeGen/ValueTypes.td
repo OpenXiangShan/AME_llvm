@@ -352,6 +352,19 @@ def funcref   : ValueType<0>;            // WebAssembly's funcref type
 def externref : ValueType<0>;            // WebAssembly's externref type
 def exnref    : ValueType<0>;            // WebAssembly's exnref type
 def x86amx    : ValueType<8192>;         // X86 AMX value
+
+// Fixed AME register values. Datatype descriptors are architectural state
+// associated with each value, independently of the RVV register file.
+def riscv_ztt_m1 : ValueType<2048>;
+def riscv_ztt_m2 : ValueType<4096>;
+def riscv_ztt_m4 : ValueType<8192>;
+def riscv_ztt_m8 : ValueType<16384>;
+def riscv_ztt_m16 : ValueType<32768>;
+def riscv_ztt_m32 : ValueType<65536>;
+def riscv_ztt_a1 : ValueType<4096>;
+def riscv_ztt_a2 : ValueType<8192>;
+def riscv_ztt_a4 : ValueType<16384>;
+def riscv_ztt_a8 : ValueType<32768>;
 def i64x8     : ValueType<512>;          // 8 Consecutive GPRs (AArch64)
 def aarch64svcount
               : ValueType<16>;   // AArch64 predicate-as-counter

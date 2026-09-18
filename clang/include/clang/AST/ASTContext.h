@@ -1377,6 +1377,8 @@ public:
 #define RVV_TYPE(Name, Id, SingletonId) \
   CanQualType SingletonId;
 #include "clang/Basic/RISCVVTypes.def"
+#define BOSCZTT_TYPE(Name, Id, SingletonId) CanQualType SingletonId;
+#include "clang/Basic/RISCVBoscZttTypes.def"
 #define WASM_TYPE(Name, Id, SingletonId) CanQualType SingletonId;
 #include "clang/Basic/WebAssemblyReferenceTypes.def"
 #define AMDGPU_TYPE(Name, Id, SingletonId, Width, Align)                       \

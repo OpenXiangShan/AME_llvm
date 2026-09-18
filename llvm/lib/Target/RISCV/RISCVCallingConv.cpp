@@ -396,6 +396,29 @@ static MCRegister allocateRVVReg(MVT LocVT, unsigned ValNo, CCState &State,
   llvm_unreachable("Unhandled register class for ValueType");
 }
 
+// Matrix arguments use the same independent register files in the C and fast
+// calling conventions. IPO can introduce fastcc for ordinary static C helpers.
+static bool assignBoscZttReg(unsigned ValNo, MVT ValVT, MVT LocVT,
+                            CCValAssign::LocInfo LocInfo, CCState &State) {
+  const MachineFunction &MF = State.getMachineFunction();
+  const RISCVSubtarget &Subtarget = MF.getSubtarget<RISCVSubtarget>();
+  const RISCVTargetLowering &TLI = *Subtarget.getTargetLowering();
+  if (!Subtarget.hasVendorBoscZtt())
+    report_fatal_error("ZTT matrix arguments require boscztt");
+  const TargetRegisterClass *RC = TLI.getRegClassFor(ValVT);
+  BitVector Reserved = Subtarget.getRegisterInfo()->getReservedRegs(MF);
+  SmallVector<MCPhysReg, 32> Available;
+  for (MCPhysReg R : *RC)
+    if (!Reserved.test(R))
+      Available.push_back(R);
+  MCRegister Reg = State.AllocateReg(Available);
+  if (!Reg)
+    report_fatal_error("ZTT matrix arguments exceed the register file; "
+                       "pass additional matrices through memory");
+  State.addLoc(CCValAssign::getReg(ValNo, ValVT, Reg, LocVT, LocInfo));
+  return false;
+}
+
 // Implements the RISC-V calling convention. Returns true upon failure.
 //
 // This has a slightly different signature to CCAssignFn - it adds `bool IsRet`.
@@ -408,6 +431,9 @@ static bool CC_RISCV_Impl(unsigned ValNo, MVT ValVT, MVT LocVT,
   const DataLayout &DL = MF.getDataLayout();
   const RISCVSubtarget &Subtarget = MF.getSubtarget<RISCVSubtarget>();
   const RISCVTargetLowering &TLI = *Subtarget.getTargetLowering();
+
+  if (ValVT >= MVT::riscv_ztt_m1 && ValVT <= MVT::riscv_ztt_a8)
+    return assignBoscZttReg(ValNo, ValVT, LocVT, LocInfo, State);
 
   unsigned XLen = Subtarget.getXLen();
   MVT XLenVT = Subtarget.getXLenVT();
@@ -710,6 +736,9 @@ static bool CC_RISCV_FastCC(unsigned ValNo, MVT ValVT, MVT LocVT,
                             CCValAssign::LocInfo LocInfo,
                             ISD::ArgFlagsTy ArgFlags, Type *OrigTy,
                             CCState &State) {
+  if (ValVT >= MVT::riscv_ztt_m1 && ValVT <= MVT::riscv_ztt_a8)
+    return assignBoscZttReg(ValNo, ValVT, LocVT, LocInfo, State);
+
   const MachineFunction &MF = State.getMachineFunction();
   const RISCVSubtarget &Subtarget = MF.getSubtarget<RISCVSubtarget>();
   const RISCVTargetLowering &TLI = *Subtarget.getTargetLowering();

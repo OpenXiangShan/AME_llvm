@@ -5744,6 +5744,9 @@ def mrvv_vector_bits_EQ : Joined<["-"], "mrvv-vector-bits=">, Group<m_Group>,
       !eq(GlobalDocumentation.Program, "Flang") : "",
       true: " The value will be reflected in __riscv_v_fixed_vlen preprocessor define"),
     " (RISC-V only)")>;
+def mboscztt_profile_EQ : Joined<["-"], "mboscztt-profile=">, Group<m_Group>,
+  Values<"default,ame-gem5">,
+  HelpText<"Select the fixed boscztt register profile (default or ame-gem5)">;
 def mexperimental_mtune_syntax : Flag<["-"], "mexperimental-mtune-syntax">, Group<m_Group>,
   HelpText<"Enable experimental syntax for the '-mtune' flag (RISC-V only)">;
 def mno_experimental_mtune_syntax : Flag<["-"], "mno-experimental-mtune-syntax">, Group<m_Group>,

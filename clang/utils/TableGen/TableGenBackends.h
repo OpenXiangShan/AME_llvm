@@ -178,6 +178,8 @@ void EmitMveBuiltinCG(const llvm::RecordKeeper &Records, llvm::raw_ostream &OS);
 void EmitMveBuiltinAliases(const llvm::RecordKeeper &Records,
                            llvm::raw_ostream &OS);
 
+void EmitRISCVBoscZttHeader(const llvm::RecordKeeper &Records,
+                            llvm::raw_ostream &OS);
 void EmitRVVHeader(const llvm::RecordKeeper &Records, llvm::raw_ostream &OS);
 void EmitRVVBuiltins(const llvm::RecordKeeper &Records, llvm::raw_ostream &OS);
 void EmitRVVBuiltinCG(const llvm::RecordKeeper &Records, llvm::raw_ostream &OS);

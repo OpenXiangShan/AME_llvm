@@ -1056,6 +1056,236 @@ def MR : RISCVRegisterClass<[i8, v8i1], 8,
 
 def MR0 : RISCVRegisterClass<[i8, v8i1], 8, (add M0)>;
 
+// Independent boscztt register files. Group sizes below are allocation
+// envelopes for the largest supported profile. Actual raw transfers use the
+// selected profile (256 bytes per default M register, 64 for AME_gem5).
+let Namespace = "RISCV" in {
+  def ZTT_STATE : Register<"ztt_state">;
+  foreach I = 0-31 in {
+    def ZTTM#I : RISCVReg<I, "m"#I>;
+    def ZTTMD#I : RISCVReg<I, "md"#I>;
+  }
+  foreach I = 0-7 in {
+    def ZTTA#I : RISCVReg<I, "acc"#I>;
+    def ZTTAD#I : RISCVReg<I, "ad"#I>;
+  }
+  foreach I = 0-31 in
+    def sub_ztt_m#I : SubRegIndex<2048, !mul(I, 2048)>;
+  def ZTTM0G2 : RISCVRegWithSubRegs<0, "m0",
+      [ZTTM0, ZTTM1]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1];
+  }
+  def ZTTM2G2 : RISCVRegWithSubRegs<2, "m2",
+      [ZTTM2, ZTTM3]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1];
+  }
+  def ZTTM4G2 : RISCVRegWithSubRegs<4, "m4",
+      [ZTTM4, ZTTM5]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1];
+  }
+  def ZTTM6G2 : RISCVRegWithSubRegs<6, "m6",
+      [ZTTM6, ZTTM7]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1];
+  }
+  def ZTTM8G2 : RISCVRegWithSubRegs<8, "m8",
+      [ZTTM8, ZTTM9]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1];
+  }
+  def ZTTM10G2 : RISCVRegWithSubRegs<10, "m10",
+      [ZTTM10, ZTTM11]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1];
+  }
+  def ZTTM12G2 : RISCVRegWithSubRegs<12, "m12",
+      [ZTTM12, ZTTM13]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1];
+  }
+  def ZTTM14G2 : RISCVRegWithSubRegs<14, "m14",
+      [ZTTM14, ZTTM15]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1];
+  }
+  def ZTTM16G2 : RISCVRegWithSubRegs<16, "m16",
+      [ZTTM16, ZTTM17]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1];
+  }
+  def ZTTM18G2 : RISCVRegWithSubRegs<18, "m18",
+      [ZTTM18, ZTTM19]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1];
+  }
+  def ZTTM20G2 : RISCVRegWithSubRegs<20, "m20",
+      [ZTTM20, ZTTM21]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1];
+  }
+  def ZTTM22G2 : RISCVRegWithSubRegs<22, "m22",
+      [ZTTM22, ZTTM23]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1];
+  }
+  def ZTTM24G2 : RISCVRegWithSubRegs<24, "m24",
+      [ZTTM24, ZTTM25]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1];
+  }
+  def ZTTM26G2 : RISCVRegWithSubRegs<26, "m26",
+      [ZTTM26, ZTTM27]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1];
+  }
+  def ZTTM28G2 : RISCVRegWithSubRegs<28, "m28",
+      [ZTTM28, ZTTM29]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1];
+  }
+  def ZTTM30G2 : RISCVRegWithSubRegs<30, "m30",
+      [ZTTM30, ZTTM31]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1];
+  }
+  def ZTTM0G4 : RISCVRegWithSubRegs<0, "m0",
+      [ZTTM0, ZTTM1, ZTTM2, ZTTM3]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1, sub_ztt_m2, sub_ztt_m3];
+  }
+  def ZTTM4G4 : RISCVRegWithSubRegs<4, "m4",
+      [ZTTM4, ZTTM5, ZTTM6, ZTTM7]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1, sub_ztt_m2, sub_ztt_m3];
+  }
+  def ZTTM8G4 : RISCVRegWithSubRegs<8, "m8",
+      [ZTTM8, ZTTM9, ZTTM10, ZTTM11]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1, sub_ztt_m2, sub_ztt_m3];
+  }
+  def ZTTM12G4 : RISCVRegWithSubRegs<12, "m12",
+      [ZTTM12, ZTTM13, ZTTM14, ZTTM15]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1, sub_ztt_m2, sub_ztt_m3];
+  }
+  def ZTTM16G4 : RISCVRegWithSubRegs<16, "m16",
+      [ZTTM16, ZTTM17, ZTTM18, ZTTM19]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1, sub_ztt_m2, sub_ztt_m3];
+  }
+  def ZTTM20G4 : RISCVRegWithSubRegs<20, "m20",
+      [ZTTM20, ZTTM21, ZTTM22, ZTTM23]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1, sub_ztt_m2, sub_ztt_m3];
+  }
+  def ZTTM24G4 : RISCVRegWithSubRegs<24, "m24",
+      [ZTTM24, ZTTM25, ZTTM26, ZTTM27]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1, sub_ztt_m2, sub_ztt_m3];
+  }
+  def ZTTM28G4 : RISCVRegWithSubRegs<28, "m28",
+      [ZTTM28, ZTTM29, ZTTM30, ZTTM31]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1, sub_ztt_m2, sub_ztt_m3];
+  }
+  def ZTTM0G8 : RISCVRegWithSubRegs<0, "m0",
+      [ZTTM0, ZTTM1, ZTTM2, ZTTM3, ZTTM4, ZTTM5, ZTTM6, ZTTM7]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1, sub_ztt_m2, sub_ztt_m3, sub_ztt_m4, sub_ztt_m5, sub_ztt_m6, sub_ztt_m7];
+  }
+  def ZTTM8G8 : RISCVRegWithSubRegs<8, "m8",
+      [ZTTM8, ZTTM9, ZTTM10, ZTTM11, ZTTM12, ZTTM13, ZTTM14, ZTTM15]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1, sub_ztt_m2, sub_ztt_m3, sub_ztt_m4, sub_ztt_m5, sub_ztt_m6, sub_ztt_m7];
+  }
+  def ZTTM16G8 : RISCVRegWithSubRegs<16, "m16",
+      [ZTTM16, ZTTM17, ZTTM18, ZTTM19, ZTTM20, ZTTM21, ZTTM22, ZTTM23]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1, sub_ztt_m2, sub_ztt_m3, sub_ztt_m4, sub_ztt_m5, sub_ztt_m6, sub_ztt_m7];
+  }
+  def ZTTM24G8 : RISCVRegWithSubRegs<24, "m24",
+      [ZTTM24, ZTTM25, ZTTM26, ZTTM27, ZTTM28, ZTTM29, ZTTM30, ZTTM31]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1, sub_ztt_m2, sub_ztt_m3, sub_ztt_m4, sub_ztt_m5, sub_ztt_m6, sub_ztt_m7];
+  }
+  def ZTTM0G16 : RISCVRegWithSubRegs<0, "m0",
+      [ZTTM0, ZTTM1, ZTTM2, ZTTM3, ZTTM4, ZTTM5, ZTTM6, ZTTM7, ZTTM8, ZTTM9, ZTTM10, ZTTM11, ZTTM12, ZTTM13, ZTTM14, ZTTM15]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1, sub_ztt_m2, sub_ztt_m3, sub_ztt_m4, sub_ztt_m5, sub_ztt_m6, sub_ztt_m7, sub_ztt_m8, sub_ztt_m9, sub_ztt_m10, sub_ztt_m11, sub_ztt_m12, sub_ztt_m13, sub_ztt_m14, sub_ztt_m15];
+  }
+  def ZTTM16G16 : RISCVRegWithSubRegs<16, "m16",
+      [ZTTM16, ZTTM17, ZTTM18, ZTTM19, ZTTM20, ZTTM21, ZTTM22, ZTTM23, ZTTM24, ZTTM25, ZTTM26, ZTTM27, ZTTM28, ZTTM29, ZTTM30, ZTTM31]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1, sub_ztt_m2, sub_ztt_m3, sub_ztt_m4, sub_ztt_m5, sub_ztt_m6, sub_ztt_m7, sub_ztt_m8, sub_ztt_m9, sub_ztt_m10, sub_ztt_m11, sub_ztt_m12, sub_ztt_m13, sub_ztt_m14, sub_ztt_m15];
+  }
+  def ZTTM0G32 : RISCVRegWithSubRegs<0, "m0",
+      [ZTTM0, ZTTM1, ZTTM2, ZTTM3, ZTTM4, ZTTM5, ZTTM6, ZTTM7, ZTTM8, ZTTM9, ZTTM10, ZTTM11, ZTTM12, ZTTM13, ZTTM14, ZTTM15, ZTTM16, ZTTM17, ZTTM18, ZTTM19, ZTTM20, ZTTM21, ZTTM22, ZTTM23, ZTTM24, ZTTM25, ZTTM26, ZTTM27, ZTTM28, ZTTM29, ZTTM30, ZTTM31]> {
+    let SubRegIndices = [sub_ztt_m0, sub_ztt_m1, sub_ztt_m2, sub_ztt_m3, sub_ztt_m4, sub_ztt_m5, sub_ztt_m6, sub_ztt_m7, sub_ztt_m8, sub_ztt_m9, sub_ztt_m10, sub_ztt_m11, sub_ztt_m12, sub_ztt_m13, sub_ztt_m14, sub_ztt_m15, sub_ztt_m16, sub_ztt_m17, sub_ztt_m18, sub_ztt_m19, sub_ztt_m20, sub_ztt_m21, sub_ztt_m22, sub_ztt_m23, sub_ztt_m24, sub_ztt_m25, sub_ztt_m26, sub_ztt_m27, sub_ztt_m28, sub_ztt_m29, sub_ztt_m30, sub_ztt_m31];
+  }
+  foreach I = 0-7 in
+    def sub_ztt_a#I : SubRegIndex<4096, !mul(I, 4096)>;
+  def ZTTA0G2 : RISCVRegWithSubRegs<0, "acc0",
+      [ZTTA0, ZTTA1]> {
+    let SubRegIndices = [sub_ztt_a0, sub_ztt_a1];
+  }
+  def ZTTA2G2 : RISCVRegWithSubRegs<2, "acc2",
+      [ZTTA2, ZTTA3]> {
+    let SubRegIndices = [sub_ztt_a0, sub_ztt_a1];
+  }
+  def ZTTA4G2 : RISCVRegWithSubRegs<4, "acc4",
+      [ZTTA4, ZTTA5]> {
+    let SubRegIndices = [sub_ztt_a0, sub_ztt_a1];
+  }
+  def ZTTA6G2 : RISCVRegWithSubRegs<6, "acc6",
+      [ZTTA6, ZTTA7]> {
+    let SubRegIndices = [sub_ztt_a0, sub_ztt_a1];
+  }
+  def ZTTA0G4 : RISCVRegWithSubRegs<0, "acc0",
+      [ZTTA0, ZTTA1, ZTTA2, ZTTA3]> {
+    let SubRegIndices = [sub_ztt_a0, sub_ztt_a1, sub_ztt_a2, sub_ztt_a3];
+  }
+  def ZTTA4G4 : RISCVRegWithSubRegs<4, "acc4",
+      [ZTTA4, ZTTA5, ZTTA6, ZTTA7]> {
+    let SubRegIndices = [sub_ztt_a0, sub_ztt_a1, sub_ztt_a2, sub_ztt_a3];
+  }
+  def ZTTA0G8 : RISCVRegWithSubRegs<0, "acc0",
+      [ZTTA0, ZTTA1, ZTTA2, ZTTA3, ZTTA4, ZTTA5, ZTTA6, ZTTA7]> {
+    let SubRegIndices = [sub_ztt_a0, sub_ztt_a1, sub_ztt_a2, sub_ztt_a3, sub_ztt_a4, sub_ztt_a5, sub_ztt_a6, sub_ztt_a7];
+  }
+}
+
+def ZTTMR : RISCVRegisterClass<[riscv_ztt_m1], 64,
+    (add ZTTM0, ZTTM1, ZTTM2, ZTTM3, ZTTM4, ZTTM5, ZTTM6, ZTTM7, ZTTM8, ZTTM9, ZTTM10, ZTTM11, ZTTM12, ZTTM13, ZTTM14, ZTTM15, ZTTM16, ZTTM17, ZTTM18, ZTTM19, ZTTM20, ZTTM21, ZTTM22, ZTTM23, ZTTM24, ZTTM25, ZTTM26, ZTTM27, ZTTM28, ZTTM29, ZTTM30, ZTTM31)> {
+  let RegInfos = RegInfoByHwMode<[DefaultMode], [RegInfo<2048, 2112, 64>]>;
+  let DecoderMethod = "DecodeBoscZttMRegisterClass";
+}
+def ZTTMR2 : RISCVRegisterClass<[riscv_ztt_m2], 64,
+    (add ZTTM0G2, ZTTM2G2, ZTTM4G2, ZTTM6G2, ZTTM8G2, ZTTM10G2, ZTTM12G2, ZTTM14G2, ZTTM16G2, ZTTM18G2, ZTTM20G2, ZTTM22G2, ZTTM24G2, ZTTM26G2, ZTTM28G2, ZTTM30G2)> {
+  let RegInfos = RegInfoByHwMode<[DefaultMode], [RegInfo<4096, 4224, 64>]>;
+}
+def ZTTMR4 : RISCVRegisterClass<[riscv_ztt_m4], 64,
+    (add ZTTM0G4, ZTTM4G4, ZTTM8G4, ZTTM12G4, ZTTM16G4, ZTTM20G4, ZTTM24G4, ZTTM28G4)> {
+  let RegInfos = RegInfoByHwMode<[DefaultMode], [RegInfo<8192, 8448, 64>]>;
+}
+def ZTTMR8 : RISCVRegisterClass<[riscv_ztt_m8], 64,
+    (add ZTTM0G8, ZTTM8G8, ZTTM16G8, ZTTM24G8)> {
+  let RegInfos = RegInfoByHwMode<[DefaultMode], [RegInfo<16384, 16896, 64>]>;
+}
+def ZTTMR16 : RISCVRegisterClass<[riscv_ztt_m16], 64,
+    (add ZTTM0G16, ZTTM16G16)> {
+  let RegInfos = RegInfoByHwMode<[DefaultMode], [RegInfo<32768, 33792, 64>]>;
+}
+def ZTTMR32 : RISCVRegisterClass<[riscv_ztt_m32], 64,
+    (add ZTTM0G32)> {
+  let RegInfos = RegInfoByHwMode<[DefaultMode], [RegInfo<65536, 67584, 64>]>;
+}
+def ZTTMAny : RISCVRegisterClass<[riscv_ztt_m1, riscv_ztt_m2, riscv_ztt_m4, riscv_ztt_m8, riscv_ztt_m16, riscv_ztt_m32],
+    64, (add ZTTMR, ZTTMR2, ZTTMR4, ZTTMR8, ZTTMR16, ZTTMR32)> {
+  let RegInfos = RegInfoByHwMode<[DefaultMode], [RegInfo<0, 0, 64>]>;
+  let isAllocatable = 0;
+}
+
+def ZTTAR : RISCVRegisterClass<[riscv_ztt_a1], 64,
+    (add ZTTA0, ZTTA1, ZTTA2, ZTTA3, ZTTA4, ZTTA5, ZTTA6, ZTTA7)> {
+  let RegInfos = RegInfoByHwMode<[DefaultMode], [RegInfo<4096, 8384, 64>]>;
+  let DecoderMethod = "DecodeBoscZttARegisterClass";
+}
+def ZTTAR2 : RISCVRegisterClass<[riscv_ztt_a2], 64,
+    (add ZTTA0G2, ZTTA2G2, ZTTA4G2, ZTTA6G2)> {
+  let RegInfos = RegInfoByHwMode<[DefaultMode], [RegInfo<8192, 12544, 64>]>;
+}
+def ZTTAR4 : RISCVRegisterClass<[riscv_ztt_a4], 64,
+    (add ZTTA0G4, ZTTA4G4)> {
+  let RegInfos = RegInfoByHwMode<[DefaultMode], [RegInfo<16384, 20864, 64>]>;
+}
+def ZTTAR8 : RISCVRegisterClass<[riscv_ztt_a8], 64,
+    (add ZTTA0G8)> {
+  let RegInfos = RegInfoByHwMode<[DefaultMode], [RegInfo<32768, 37504, 64>]>;
+}
+def ZTTAAny : RISCVRegisterClass<[riscv_ztt_a1, riscv_ztt_a2, riscv_ztt_a4, riscv_ztt_a8],
+    64, (add ZTTAR, ZTTAR2, ZTTAR4, ZTTAR8)> {
+  let RegInfos = RegInfoByHwMode<[DefaultMode], [RegInfo<0, 0, 64>]>;
+  let isAllocatable = 0;
+}
+
+def ZTTDescriptors : RISCVRegisterClass<[i32], 32,
+    (add (sequence "ZTTMD%u", 0, 31), (sequence "ZTTAD%u", 0, 7), ZTT_STATE)> {
+  let isAllocatable = 0;
+}
+
 //===----------------------------------------------------------------------===//
 // Register categories.
 //

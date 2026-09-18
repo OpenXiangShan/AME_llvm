@@ -28,6 +28,7 @@
 #include "llvm/IR/DataLayout.h"
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/Module.h"
+#include "llvm/Support/RISCVBoscZtt.h"
 
 using namespace clang;
 using namespace CodeGen;
@@ -562,6 +563,28 @@ llvm::Type *CodeGenTypes::ConvertType(QualType T) {
         return llvm::ScalableVectorType::get(ConvertType(Info.ElementType),
                                              Info.EC.getKnownMinValue());
       }
+#define BOSCZTT_Int(Width) llvm::Type::getIntNTy(getLLVMContext(), Width)
+#define BOSCZTT_Half(Width) llvm::Type::getHalfTy(getLLVMContext())
+#define BOSCZTT_BFloat(Width) llvm::Type::getBFloatTy(getLLVMContext())
+#define BOSCZTT_Float(Width) llvm::Type::getFloatTy(getLLVMContext())
+#define BOSCZTT_Double(Width) llvm::Type::getDoubleTy(getLLVMContext())
+#define BOSCZTT_MATRIX_TYPE(Name, Id, SingletonId, Element, Width, Squares, Acc) \
+  case BuiltinType::Id: {                                                      \
+    unsigned Side = llvm::RISCV::getBoscZttProfile(                            \
+        Target.hasFeature("boscztt-ame-gem5")).TileSide;                       \
+    SmallVector<unsigned, 3> Dims = {Side, Side};                              \
+    if (Squares)                                                              \
+      Dims.push_back(Squares);                                                \
+    return llvm::TargetExtType::get(                                          \
+        getLLVMContext(), Acc ? "riscv.ztt.acc" : "riscv.ztt.matrix",           \
+        {BOSCZTT_##Element(Width)}, Dims);                                     \
+  }
+#include "clang/Basic/RISCVBoscZttTypes.def"
+#undef BOSCZTT_Int
+#undef BOSCZTT_Half
+#undef BOSCZTT_BFloat
+#undef BOSCZTT_Float
+#undef BOSCZTT_Double
 #define WASM_REF_TYPE(Name, MangledName, Id, SingletonId, AS)                  \
   case BuiltinType::Id: {                                                      \
     if (BuiltinType::Id == BuiltinType::WasmExternRef)                         \

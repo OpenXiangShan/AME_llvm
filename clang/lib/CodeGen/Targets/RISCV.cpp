@@ -709,6 +709,10 @@ ABIArgInfo RISCVABIInfo::classifyArgumentType(QualType Ty, bool IsFixed,
   assert(ArgGPRsLeft <= NumArgGPRs && "Arg GPR tracking underflow");
   Ty = useFirstFieldIfTransparentUnion(Ty);
 
+  // Matrix values use the independent M/ACC register calling convention.
+  if (Ty->isBoscZttType())
+    return ABIArgInfo::getDirect();
+
   // Structures with either a non-trivial destructor or a non-trivial
   // copy constructor are always passed indirectly.
   if (CGCXXABI::RecordArgABI RAA = getRecordArgABI(Ty, getCXXABI())) {

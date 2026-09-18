@@ -2819,6 +2819,11 @@ void MicrosoftCXXNameMangler::mangleType(const BuiltinType *T, Qualifiers,
     mangleArtificialTagType(TagTypeKind::Struct, "__mfp8", {"__clang"});
     break;
 
+#define BOSCZTT_TYPE(Name, Id, SingletonId)                           \
+  case BuiltinType::Id:                                              \
+    mangleArtificialTagType(TagTypeKind::Struct, Name, {"__clang"}); \
+    break;
+#include "clang/Basic/RISCVBoscZttTypes.def"
 #define WASM_REF_TYPE(InternalName, MangledName, Id, SingletonId, AS)          \
   case BuiltinType::Id:                                                        \
     mangleArtificialTagType(TagTypeKind::Struct, MangledName);                 \

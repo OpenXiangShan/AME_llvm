@@ -1447,6 +1447,12 @@ unsigned RISCVAsmParser::validateTargetOperandClass(MCParsedAsmOperand &AsmOp,
     return Match_InvalidOperand;
 
   MCRegister Reg = Op.getReg();
+  // The XAIFET mask register file also spells its registers m0-m7.
+  // Resolve that spelling using the instruction's operand class.
+  if (Kind == MCK_ZTTMR && Reg >= RISCV::M0 && Reg <= RISCV::M7) {
+    Op.Reg.Reg = RISCV::ZTTM0 + (Reg - RISCV::M0);
+    return Match_Success;
+  }
   bool IsRegFPR64 =
       getRISCVMCRegisterClass(RISCV::FPR64RegClassID).contains(Reg);
   bool IsRegFPR64C =
@@ -4198,6 +4204,23 @@ static bool isZvvfmmScaleOpcode(unsigned Opcode) {
 bool RISCVAsmParser::validateInstruction(MCInst &Inst,
                                          OperandVector &Operands) {
   unsigned Opcode = Inst.getOpcode();
+  bool AMEGem5 = STI->hasFeature(RISCV::FeatureBoscZttAMEGem5);
+  for (const MCOperand &Op : Inst) {
+    if (!Op.isReg())
+      continue;
+    MCRegister Reg = Op.getReg();
+    if ((!AMEGem5 && Reg >= RISCV::ZTTM16 && Reg <= RISCV::ZTTM31) ||
+        (AMEGem5 && Reg >= RISCV::ZTTA4 && Reg <= RISCV::ZTTA7))
+      return Error(Operands.front()->getStartLoc(), "invalid operand for instruction");
+  }
+
+  if ((Opcode == RISCV::ZTT_MCOLZIP_EW ||
+       Opcode == RISCV::ZTT_MCOLUNZIP_EW ||
+       Opcode == RISCV::ZTT_MROWZIP_EW ||
+       Opcode == RISCV::ZTT_MROWUNZIP_EW) &&
+      Inst.getOperand(0).getReg() == Inst.getOperand(1).getReg())
+    return Error(Operands[2]->getStartLoc(),
+                 "boscztt zip operands must be distinct matrix registers");
 
   if (Opcode == RISCV::PseudoVMSGEU_VX_M_T ||
       Opcode == RISCV::PseudoVMSGE_VX_M_T) {

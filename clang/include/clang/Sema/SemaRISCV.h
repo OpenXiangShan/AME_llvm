@@ -34,6 +34,9 @@ public:
   SemaRISCV(Sema &S);
 
   bool CheckLMUL(CallExpr *TheCall, unsigned ArgNum);
+  bool CheckBoscZttBuiltin(unsigned BuiltinID, CallExpr *TheCall);
+  bool checkBoscZttTypeSupport(QualType Ty, SourceLocation Loc,
+                               const llvm::StringMap<bool> &Features);
   bool CheckBuiltinFunctionCall(const TargetInfo &TI, unsigned BuiltinID,
                                 CallExpr *TheCall);
   void checkRVVTypeSupport(QualType Ty, SourceLocation Loc, Decl *D,

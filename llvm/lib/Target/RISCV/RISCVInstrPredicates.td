@@ -76,7 +76,17 @@ def isSelectPseudo
                        Select_FPR32INX_Using_CC_GPR,
                        Select_FPR64_Using_CC_GPR,
                        Select_FPR64INX_Using_CC_GPR,
-                       Select_FPR64IN32X_Using_CC_GPR
+                       Select_FPR64IN32X_Using_CC_GPR,
+                       Select_ZTTMR_Using_CC_GPR,
+                       Select_ZTTMR2_Using_CC_GPR,
+                       Select_ZTTMR4_Using_CC_GPR,
+                       Select_ZTTMR8_Using_CC_GPR,
+                       Select_ZTTMR16_Using_CC_GPR,
+                       Select_ZTTMR32_Using_CC_GPR,
+                       Select_ZTTAR_Using_CC_GPR,
+                       Select_ZTTAR2_Using_CC_GPR,
+                       Select_ZTTAR4_Using_CC_GPR,
+                       Select_ZTTAR8_Using_CC_GPR
                      ]>>>;
 
 // Returns true if this is a vector configuration instruction.

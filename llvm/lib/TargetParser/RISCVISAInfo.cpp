@@ -673,7 +673,14 @@ RISCVISAInfo::parseArchString(StringRef Arch, bool EnableExperimentalExtension,
 
     do {
       StringRef Name, Vers, Desc;
-      if (RISCVISAUtils::AllStdExts.contains(Ext.front())) {
+      if (Ext.starts_with("boscztt")) {
+        // Preserve the local extension spelling without treating its initial
+        // 'b' as the standard single-letter bit-manipulation extension.
+        Name = Ext.take_front(7);
+        Vers = Ext.drop_front(7);
+        Desc = "non-standard user-level extension";
+        Ext = StringRef();
+      } else if (RISCVISAUtils::AllStdExts.contains(Ext.front())) {
         Name = Ext.take_front(1);
         Ext = Ext.drop_front();
         Vers = Ext;

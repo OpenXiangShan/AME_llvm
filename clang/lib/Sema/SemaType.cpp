@@ -1881,6 +1881,10 @@ QualType Sema::BuildPointerType(QualType T,
   }
 
   // Build the pointer type.
+  if (T->isBoscZttType()) {
+    Diag(Loc, diag::err_boscztt_address);
+    return QualType();
+  }
   return Context.getPointerType(T);
 }
 
@@ -1953,6 +1957,10 @@ QualType Sema::BuildReferenceType(QualType T, bool SpelledAsLValue,
     return QualType();
   }
 
+  if (T.getNonReferenceType()->isBoscZttType()) {
+    Diag(Loc, diag::err_boscztt_address);
+    return QualType();
+  }
   // Handle restrict on references.
   if (LValueRef)
     return Context.getLValueReferenceType(T, SpelledAsLValue);

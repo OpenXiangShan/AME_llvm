@@ -1076,9 +1076,69 @@ Value *CodeGenFunction::EmitRISCVCpuIs(StringRef CPUStr) {
   return Result;
 }
 
+static Value *emitBoscZttBuiltin(CodeGenFunction &CGF, unsigned BuiltinID,
+                               const CallExpr *E) {
+  Intrinsic::ID ID;
+  StringRef Form, Signature;
+  switch (BuiltinID) {
+#define RISCV_ZTT_INTRINSIC(NAME, OPCODE, FORM, SIG)                             \
+  case clang::RISCV::BI##NAME:                                                 \
+    ID = Intrinsic::riscv_ztt_##NAME;                                           \
+    Form = #FORM;                                                             \
+    Signature = SIG;                                                          \
+    break;
+#include "llvm/IR/IntrinsicsRISCVBoscZtt.def"
+#undef RISCV_ZTT_INTRINSIC
+  default:
+    llvm_unreachable("expected a boscztt builtin");
+  }
+  SmallVector<Value *, 4> Ops;
+  SmallVector<llvm::Type *, 4> Types;
+  SmallVector<LValue, 2> Destinations;
+  bool ScalarResult = Form == "acquire" || Form == "get" || Form == "extract";
+  if (ScalarResult) {
+    Types.push_back(CGF.ConvertType(E->getType()));
+    Signature = Signature.drop_front();
+  }
+  for (unsigned I = 0; I < E->getNumArgs(); ++I) {
+    const Expr *Arg = E->getArg(I);
+    bool IsOutput = Form == "zip" ||
+                    (I == 0 && (Form == "matrix" || Form == "set"));
+    if (IsOutput) {
+      LValue Dest = CGF.EmitLValue(Arg);
+      Destinations.push_back(Dest);
+      if (Form != "zip" || I == 0)
+        Types.push_back(CGF.ConvertType(Arg->getType()));
+      Ops.push_back(CGF.EmitLoadOfLValue(Dest, Arg->getExprLoc()).getScalarVal());
+    } else {
+      Value *V = CGF.EmitScalarExpr(Arg);
+      Ops.push_back(V);
+      // XLEN in acquire/extract is matched against the scalar return type;
+      // memory pointers have a fixed, non-overloaded intrinsic type.
+      if (Signature[I] != 'P' && !(ScalarResult && Signature[I] == 'X'))
+        Types.push_back(V->getType());
+    }
+  }
+  Value *Result = CGF.Builder.CreateCall(CGF.CGM.getIntrinsic(ID, Types), Ops);
+  for (unsigned I = 0; I < Destinations.size(); ++I) {
+    Value *V = Form == "zip" ? CGF.Builder.CreateExtractValue(Result, I) : Result;
+    CGF.EmitStoreThroughLValue(RValue::get(V), Destinations[I]);
+  }
+  return Result;
+}
+
 Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
                                              const CallExpr *E,
                                              ReturnValueSlot ReturnValue) {
+
+  switch (BuiltinID) {
+#define RISCV_ZTT_INTRINSIC(NAME, OPCODE, FORM, SIG) case clang::RISCV::BI##NAME:
+#include "llvm/IR/IntrinsicsRISCVBoscZtt.def"
+#undef RISCV_ZTT_INTRINSIC
+    return emitBoscZttBuiltin(*this, BuiltinID, E);
+  default:
+    break;
+  }
 
   if (BuiltinID == Builtin::BI__builtin_cpu_supports)
     return EmitRISCVCpuSupports(E);

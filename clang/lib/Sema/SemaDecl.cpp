@@ -8942,6 +8942,22 @@ void Sema::CheckVariableDeclarationType(VarDecl *NewVD) {
   if (T->isUndeducedType())
     return;
 
+  // cleanup implicitly takes the variable's address, including after template
+  // instantiation or auto deduction, without passing CheckAddressOfOperand.
+  if (T->isBoscZttType() && NewVD->hasAttr<CleanupAttr>()) {
+    Diag(NewVD->getAttr<CleanupAttr>()->getLocation(), diag::err_boscztt_operand)
+        << "matrix register values cannot have a cleanup attribute";
+    NewVD->setInvalidDecl();
+    return;
+  }
+
+  // Reference collapsing during auto deduction can bypass BuildReferenceType.
+  if (T->isReferenceType() && T.getNonReferenceType()->isBoscZttType()) {
+    Diag(NewVD->getLocation(), diag::err_boscztt_address);
+    NewVD->setInvalidDecl();
+    return;
+  }
+
   if (NewVD->hasAttrs())
     CheckAlignasUnderalignment(NewVD);
 
@@ -9184,6 +9200,11 @@ void Sema::CheckVariableDeclarationType(VarDecl *NewVD) {
     }
   }
 
+  if (T->isBoscZttType() && T.isVolatileQualified()) {
+    Diag(NewVD->getLocation(), diag::err_boscztt_volatile);
+    NewVD->setInvalidDecl();
+  }
+
   if (!NewVD->hasLocalStorage() && T->isSizelessType() &&
       !T.isWebAssemblyReferenceType() && !T->isHLSLSpecificType()) {
     Diag(NewVD->getLocation(), diag::err_sizeless_nonlocal) << T;
@@ -9227,6 +9248,15 @@ void Sema::CheckVariableDeclarationType(VarDecl *NewVD) {
     Context.getFunctionFeatureMap(CallerFeatureMap, FD);
     if (ARM().checkSVETypeSupport(T, NewVD->getLocation(), FD,
                                   CallerFeatureMap)) {
+      NewVD->setInvalidDecl();
+      return;
+    }
+  }
+
+  if (T->isBoscZttType() && isa<FunctionDecl>(CurContext)) {
+    llvm::StringMap<bool> Features;
+    Context.getFunctionFeatureMap(Features, cast<FunctionDecl>(CurContext));
+    if (RISCV().checkBoscZttTypeSupport(T, NewVD->getLocation(), Features)) {
       NewVD->setInvalidDecl();
       return;
     }
@@ -16000,6 +16030,11 @@ ParmVarDecl *Sema::CheckParameter(DeclContext *DC, SourceLocation StartLoc,
   ParmVarDecl *New = ParmVarDecl::Create(Context, DC, StartLoc, NameLoc, Name,
                                          Context.getAdjustedParameterType(T),
                                          TSInfo, SC, nullptr);
+
+  if (T->isBoscZttType() && T.isVolatileQualified()) {
+    Diag(NameLoc, diag::err_boscztt_volatile);
+    New->setInvalidDecl();
+  }
 
   // Make a note if we created a new pack in the scope of a lambda, so that
   // we know that references to that pack must also be expanded within the

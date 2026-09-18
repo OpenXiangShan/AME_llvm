@@ -1754,6 +1754,15 @@ void InitListChecker::CheckScalarType(const InitializedEntity &Entity,
                                       InitListExpr *StructuredList,
                                       unsigned &StructuredIndex) {
   if (Index >= IList->getNumInits()) {
+    if (DeclType->isBoscZttType()) {
+      if (!VerifyOnly)
+        SemaRef.Diag(IList->getBeginLoc(), diag::err_empty_sizeless_initializer)
+            << DeclType << IList->getSourceRange();
+      hadError = true;
+      ++Index;
+      ++StructuredIndex;
+      return;
+    }
     if (!VerifyOnly) {
       if (SemaRef.getLangOpts().CPlusPlus) {
         if (DeclType->isSizelessBuiltinType())
@@ -4007,6 +4016,8 @@ bool InitializationSequence::isAmbiguous() const {
     return false;
 
   switch (getFailureKind()) {
+  case FK_BoscZttValueInit:
+  case FK_BoscZttReference:
   case FK_TooManyInitsForReference:
   case FK_ParenthesizedListInitForReference:
   case FK_ArrayNeedsInitList:
@@ -5510,6 +5521,14 @@ static void TryReferenceInitializationCore(Sema &S,
   QualType DestType = Entity.getType();
   SourceLocation DeclLoc = Initializer->getBeginLoc();
 
+  // Deduced return types and reference collapsing can form references without
+  // going through BuildReferenceType. Reject their binding before a register
+  // value can acquire an address in CodeGen.
+  if (T1->isBoscZttType()) {
+    Sequence.SetFailed(InitializationSequence::FK_BoscZttReference);
+    return;
+  }
+
   // Compute some basic properties of the types and the initializer.
   bool isLValueRef = DestType->isLValueReferenceType();
   bool isRValueRef = !isLValueRef;
@@ -5856,6 +5875,11 @@ static void TryValueInitialization(Sema &S,
 
   //     -- if T is an array type, then each element is value-initialized;
   T = S.Context.getBaseElementType(T);
+
+  if (T->isBoscZttType()) {
+    Sequence.SetFailed(InitializationSequence::FK_BoscZttValueInit);
+    return;
+  }
 
   if (auto *ClassDecl = T->getAsCXXRecordDecl()) {
     bool NeedZeroInitialization = true;
@@ -9058,6 +9082,13 @@ bool InitializationSequence::Diagnose(Sema &S,
     OnlyArg = nullptr;
 
   switch (Failure) {
+  case FK_BoscZttValueInit:
+    S.Diag(Kind.getLocation(), diag::err_boscztt_operand)
+        << "matrix initialization requires msettyp or asettyp";
+    break;
+  case FK_BoscZttReference:
+    S.Diag(Kind.getLocation(), diag::err_boscztt_address);
+    break;
   case FK_TooManyInitsForReference:
     // FIXME: Customize for the initialized entity?
     if (Args.empty()) {
@@ -9567,6 +9598,12 @@ void InitializationSequence::dump(raw_ostream &OS) const {
       OS << "parenthesized list init for reference";
       break;
 
+    case FK_BoscZttValueInit:
+      OS << "matrix initialization requires a datatype descriptor";
+      break;
+    case FK_BoscZttReference:
+      OS << "matrix register values cannot bind to references";
+      break;
     case FK_ArrayNeedsInitList:
       OS << "array requires initializer list";
       break;

@@ -1472,6 +1472,12 @@ void ASTContext::InitBuiltinTypes(const TargetInfo &Target,
 #include "clang/Basic/RISCVVTypes.def"
   }
 
+  if (Target.getTriple().isRISCV()) {
+#define BOSCZTT_TYPE(Name, Id, SingletonId) \
+  InitBuiltinType(SingletonId, BuiltinType::Id);
+#include "clang/Basic/RISCVBoscZttTypes.def"
+  }
+
   if (Target.getTriple().isWasm() && Target.hasFeature("reference-types")) {
 #define WASM_TYPE(Name, Id, SingletonId)                                       \
   InitBuiltinType(SingletonId, BuiltinType::Id);
@@ -2428,6 +2434,11 @@ TypeInfo ASTContext::getTypeInfoImpl(const Type *T) const {
     Align = 8;                                                                 \
     break;
 #include "clang/Basic/RISCVVTypes.def"
+#define BOSCZTT_TYPE(Name, Id, SingletonId) case BuiltinType::Id:
+#include "clang/Basic/RISCVBoscZttTypes.def"
+      Width = 0;
+      Align = 64;
+      break;
 #define WASM_TYPE(Name, Id, SingletonId)                                       \
   case BuiltinType::Id:                                                        \
     Width = 0;                                                                 \
@@ -3592,6 +3603,8 @@ static void encodeTypeForFunctionPointerAuth(const ASTContext &Ctx,
 #define AMDGPU_TYPE(Name, Id, SingletonId, Width, Align) case BuiltinType::Id:
 #include "clang/Basic/AMDGPUTypes.def"
     case BuiltinType::WasmExternRef:
+#define BOSCZTT_TYPE(Name, Id, SingletonId) case BuiltinType::Id:
+#include "clang/Basic/RISCVBoscZttTypes.def"
 #define RVV_TYPE(Name, Id, SingletonId) case BuiltinType::Id:
 #include "clang/Basic/RISCVVTypes.def"
       llvm_unreachable("not yet implemented");
@@ -9304,6 +9317,8 @@ static char getObjCEncodingForPrimitiveType(const ASTContext *C,
 #include "clang/Basic/AArch64ACLETypes.def"
 #define RVV_TYPE(Name, Id, SingletonId) case BuiltinType::Id:
 #include "clang/Basic/RISCVVTypes.def"
+#define BOSCZTT_TYPE(Name, Id, SingletonId) case BuiltinType::Id:
+#include "clang/Basic/RISCVBoscZttTypes.def"
 #define WASM_TYPE(Name, Id, SingletonId) case BuiltinType::Id:
 #include "clang/Basic/WebAssemblyReferenceTypes.def"
 #define AMDGPU_TYPE(Name, Id, SingletonId, Width, Align) case BuiltinType::Id:

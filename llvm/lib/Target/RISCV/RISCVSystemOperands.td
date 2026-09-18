@@ -81,6 +81,18 @@ def lookupSysRegByName : SearchIndex {
 //===----------------------------------------------------------------------===//
 
 def SysRegFFLAGS : SysReg<"fflags", 0x001>;
+
+// Provisional Ztt v0.6 CSR addresses, including its draft read-only-range
+// allocations for amestype/amefflags/amexsat. Do not silently renumber them.
+let FeaturesRequired = [{ {RISCV::FeatureVendorBoscZtt} }] in {
+  def : SysReg<"amenlen", 0xcc0>;
+  def : SysReg<"ameudsz", 0xcc1>;
+  def : SysReg<"amestype", 0xcc2>;
+  def : SysReg<"ameown", 0xcc3>;
+  def : SysReg<"amefflags", 0xcc4>;
+  def : SysReg<"amexsat", 0xcc5>;
+  def : SysReg<"amestatus", 0x800>;
+}
 def SysRegFRM    : SysReg<"frm", 0x002>;
 def SysRegFCSR   : SysReg<"fcsr", 0x003>;
 

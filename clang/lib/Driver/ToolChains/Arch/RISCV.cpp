@@ -74,6 +74,17 @@ void riscv::getRISCVTargetFeatures(const Driver &D, const llvm::Triple &Triple,
   if (!getArchFeatures(D, MArch, Features, Args))
     return;
 
+  if (const Arg *A = Args.getLastArg(options::OPT_mboscztt_profile_EQ)) {
+    StringRef Profile = A->getValue();
+    if (Profile == "ame-gem5")
+      Features.push_back("+boscztt-ame-gem5");
+    else if (Profile == "default")
+      Features.push_back("-boscztt-ame-gem5");
+    else
+      D.Diag(diag::err_drv_unsupported_option_argument)
+          << A->getSpelling() << Profile;
+  }
+
   bool CPUFastScalarUnaligned = false;
   bool CPUFastVectorUnaligned = false;
 

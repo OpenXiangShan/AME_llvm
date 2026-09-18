@@ -568,6 +568,31 @@ void CodeGenFunction::FinishFunction(SourceLocation EndLoc) {
       ReturnValue = Address::invalid();
     }
   }
+
+  // C matrix locals are SSA register values, with no C memory representation.
+  // Reuse the ordinary local-variable emission machinery, then promote its
+  // temporary slots even at -O0, before any IR is handed to the verifier.
+  SmallVector<llvm::AllocaInst *, 8> MatrixSlots;
+  for (llvm::Instruction &I : CurFn->getEntryBlock()) {
+    auto *AI = dyn_cast<llvm::AllocaInst>(&I);
+    if (!AI)
+      continue;
+    auto *Ty = dyn_cast<llvm::TargetExtType>(AI->getAllocatedType());
+    if (Ty && (Ty->getName() == "riscv.ztt.matrix" ||
+               Ty->getName() == "riscv.ztt.acc")) {
+      assert(llvm::isAllocaPromotable(AI) && "matrix variable escaped Sema");
+      MatrixSlots.push_back(AI);
+    }
+  }
+  if (!MatrixSlots.empty()) {
+    bool PromotesReturn =
+        ReturnValue.isValid() &&
+        llvm::is_contained(MatrixSlots, ReturnValue.getBasePointer());
+    llvm::DominatorTree DT(*CurFn);
+    llvm::PromoteMemToReg(MatrixSlots, DT);
+    if (PromotesReturn)
+      ReturnValue = Address::invalid();
+  }
 }
 
 /// ShouldInstrumentFunction - Return true if the current function should be

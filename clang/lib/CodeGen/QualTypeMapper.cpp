@@ -255,6 +255,10 @@ QualTypeMapper::convertBuiltinType(const BuiltinType *BT) {
 #include "clang/Basic/RISCVVTypes.def"
     llvm::reportFatalInternalError(
         "RISC-V vector types not yet supported in ABI lowering library");
+#define BOSCZTT_TYPE(Name, Id, SingletonId) case BuiltinType::Id:
+#include "clang/Basic/RISCVBoscZttTypes.def"
+    llvm::reportFatalInternalError(
+        "boscztt types not yet supported in ABI lowering library");
 #define WASM_TYPE(Name, Id, SingletonId) case BuiltinType::Id:
 #include "clang/Basic/WebAssemblyReferenceTypes.def"
     llvm::reportFatalInternalError("WebAssembly reference types not yet "

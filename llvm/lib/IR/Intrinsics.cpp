@@ -1125,6 +1125,12 @@ matchIntrinsicType(Type *Ty, ArrayRef<Intrinsic::IITDescriptor> &Infos,
         return ETy->isFloatingPointTy();
       case IITDescriptor::EC_Pointer:
         return ETy->isPointerTy();
+      case IITDescriptor::EC_RISCVZttMatrix:
+        return isa<TargetExtType>(ETy) &&
+               cast<TargetExtType>(ETy)->getName() == "riscv.ztt.matrix";
+      case IITDescriptor::EC_RISCVZttAccumulator:
+        return isa<TargetExtType>(ETy) &&
+               cast<TargetExtType>(ETy)->getName() == "riscv.ztt.acc";
       }
       llvm_unreachable("invalid element constraint");
     }();
@@ -1142,6 +1148,8 @@ matchIntrinsicType(Type *Ty, ArrayRef<Intrinsic::IITDescriptor> &Infos,
         "integer",
         "fp",
         "pointer",
+        "riscv.ztt.matrix",
+        "riscv.ztt.acc",
     };
 
     if (EC == IITDescriptor::EC_None) {

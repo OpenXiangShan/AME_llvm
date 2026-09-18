@@ -2487,6 +2487,10 @@ public:
   bool isSizelessType() const;
   bool isSizelessBuiltinType() const;
 
+  /// A fixed-shape boscztt matrix or accumulator register value. These types
+  /// deliberately have no C object representation and are independent of RVV.
+  bool isBoscZttType() const;
+
   /// Returns true for all scalable vector types.
   bool isSizelessVectorType() const;
 
@@ -3251,6 +3255,8 @@ public:
 #define RVV_TYPE(Name, Id, SingletonId) Id,
 #include "clang/Basic/RISCVVTypes.def"
 // WebAssembly reference types
+#define BOSCZTT_TYPE(Name, Id, SingletonId) Id,
+#include "clang/Basic/RISCVBoscZttTypes.def"
 #define WASM_TYPE(Name, Id, SingletonId) Id,
 #include "clang/Basic/WebAssemblyReferenceTypes.def"
 // AMDGPU types
@@ -3282,6 +3288,13 @@ private:
 public:
   Kind getKind() const { return static_cast<Kind>(BuiltinTypeBits.Kind); }
   StringRef getName(const PrintingPolicy &Policy) const;
+
+  struct BoscZttTypeInfo {
+    unsigned ElementWidth;
+    unsigned Squares;
+    bool IsAccumulator;
+  };
+  BoscZttTypeInfo getBoscZttTypeInfo() const;
 
   const char *getNameAsCString(const PrintingPolicy &Policy) const {
     // The StringRef is null-terminated.

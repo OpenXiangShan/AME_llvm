@@ -32,6 +32,7 @@ protected:
 private:
   bool FastScalarUnalignedAccess;
   bool HasExperimental = false;
+  bool HasBoscZttAMEGem5 = false;
 
 public:
   RISCVTargetInfo(const llvm::Triple &Triple, const TargetOptions &)

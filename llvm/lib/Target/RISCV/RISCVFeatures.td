@@ -1274,6 +1274,19 @@ def HasStdExtY : Predicate<"Subtarget->hasStdExtY()">,
 // Vendor extensions
 //===----------------------------------------------------------------------===//
 
+// Local name for the provisional Attached Matrix Extension v0.6. AME has
+// independent register files and does not require the V or F extensions.
+def FeatureVendorBoscZtt
+    : RISCVExtension<0, 6, "Attached Matrix Extension (Ztt v0.6)">;
+def HasVendorBoscZtt : Predicate<"Subtarget->hasVendorBoscZtt()">,
+    AssemblerPredicate<(all_of FeatureVendorBoscZtt),
+                       "'boscztt' (Attached Matrix Extension v0.6)">;
+
+// This selects an implementation's register file, not another ISA extension.
+def FeatureBoscZttAMEGem5
+    : SubtargetFeature<"boscztt-ame-gem5", "HasBoscZttAMEGem5", "true",
+                       "Use 4x4 squares, 32 M and 4 ACC registers">;
+
 // Ventana Extensions
 
 def FeatureVendorXVentanaCondOps

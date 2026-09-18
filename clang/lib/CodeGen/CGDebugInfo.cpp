@@ -1110,6 +1110,10 @@ llvm::DIType *CGDebugInfo::CreateType(const BuiltinType *BT) {
                                        SubscriptArray);
     }
 
+#define BOSCZTT_TYPE(Name, Id, SingletonId)                                   \
+  case BuiltinType::Id:                                                      \
+    return DBuilder.createUnspecifiedType(Name);
+#include "clang/Basic/RISCVBoscZttTypes.def"
 #define WASM_REF_TYPE(Name, MangledName, Id, SingletonId, AS)                  \
   case BuiltinType::Id: {                                                      \
     if (!SingletonId)                                                          \

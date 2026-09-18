@@ -98,6 +98,7 @@
 #include "llvm/IR/IntrinsicsAArch64.h"
 #include "llvm/IR/IntrinsicsARM.h"
 #include "llvm/IR/IntrinsicsNVPTX.h"
+#include "llvm/IR/IntrinsicsRISCV.h"
 #include "llvm/IR/IntrinsicsWebAssembly.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/MemoryModelRelaxationAnnotations.h"
@@ -4608,6 +4609,22 @@ void Verifier::checkAtomicMemAccessSize(Type *Ty, const Instruction *I) {
         "atomic memory access' operand must have a power-of-two size", Ty, I);
 }
 
+static bool containsBoscZttType(Type *Ty) {
+  SmallPtrSet<Type *, 8> Visited;
+  SmallVector<Type *, 8> Worklist{Ty};
+  while (!Worklist.empty()) {
+    Type *T = Worklist.pop_back_val();
+    if (!Visited.insert(T).second)
+      continue;
+    if (auto *MT = dyn_cast<TargetExtType>(T))
+      if (MT->getName() == "riscv.ztt.matrix" ||
+          MT->getName() == "riscv.ztt.acc")
+        return true;
+    append_range(Worklist, T->subtypes());
+  }
+  return false;
+}
+
 void Verifier::visitLoadInst(LoadInst &LI) {
   auto *PTy = dyn_cast<PointerType>(LI.getOperand(0)->getType());
   Check(PTy, "Load operand must be a pointer.", &LI);
@@ -4617,6 +4634,8 @@ void Verifier::visitLoadInst(LoadInst &LI) {
           "huge alignment values are unsupported", &LI);
   }
   Check(ElTy->isSized(), "loading unsized types is not allowed", &LI);
+  Check(!containsBoscZttType(ElTy),
+        "ZTT matrices must be loaded with ZTT intrinsics", &LI);
   if (LI.isAtomic()) {
     Check(LI.getOrdering() != AtomicOrdering::Release &&
               LI.getOrdering() != AtomicOrdering::AcquireRelease,
@@ -4662,6 +4681,8 @@ void Verifier::visitStoreInst(StoreInst &SI) {
           "huge alignment values are unsupported", &SI);
   }
   Check(ElTy->isSized(), "storing unsized types is not allowed", &SI);
+  Check(!containsBoscZttType(ElTy),
+        "ZTT matrices must be stored with ZTT intrinsics", &SI);
   if (SI.isAtomic()) {
     Check(SI.getOrdering() != AtomicOrdering::Acquire &&
               SI.getOrdering() != AtomicOrdering::AcquireRelease,
@@ -5999,6 +6020,139 @@ void Verifier::visitInstruction(Instruction &I) {
 /// Allow intrinsics to be verified in different ways.
 void Verifier::visitIntrinsicCall(Intrinsic::ID ID, CallBase &Call) {
   Function *IF = Call.getCalledFunction();
+
+  // The generic intrinsic signature machinery constrains M/ACC overloads.
+  // AME also needs XLEN, descriptor and square-formation checks. Keep defensive
+  // type checks here because calls can be visited before their declarations.
+  StringRef ZTTSignature;
+  StringRef ZTTForm;
+  switch (ID) {
+  default:
+    break;
+#define RISCV_ZTT_INTRINSIC(NAME, OPCODE, FORM, SIG) \
+  case Intrinsic::riscv_ztt_##NAME: \
+    ZTTSignature = SIG; ZTTForm = #FORM; break;
+#include "llvm/IR/IntrinsicsRISCVBoscZtt.def"
+#undef RISCV_ZTT_INTRINSIC
+  }
+  if (!ZTTForm.empty()) {
+    unsigned NumArgs = ZTTSignature.size();
+    if (ZTTForm == "acquire" || ZTTForm == "get" ||
+        ZTTForm == "extract")
+      --NumArgs;
+    Check(Call.arg_size() == NumArgs, "Invalid ZTT intrinsic arity", Call);
+    SmallVector<Type *, 4> Types;
+    if (ZTTForm == "zip") {
+      Check(Call.getType()->isStructTy(), "ZTT zip must return two matrices", Call);
+      auto *ST = cast<StructType>(Call.getType());
+      Check(ST->getNumElements() == 2 &&
+                ST->getElementType(0) == Call.getArgOperand(0)->getType() &&
+                ST->getElementType(1) == Call.getArgOperand(1)->getType(),
+            "ZTT zip result types must match its operands", Call);
+      for (Value *V : Call.args())
+        Types.push_back(V->getType());
+    } else if (ZTTForm == "matrix" || ZTTForm == "set") {
+      Check(Call.getType() == Call.getArgOperand(0)->getType(),
+            "ZTT destination and passthrough types must match", Call);
+      for (Value *V : Call.args())
+        Types.push_back(V->getType());
+    } else {
+      if (!Call.getType()->isVoidTy())
+        Types.push_back(Call.getType());
+      for (Value *V : Call.args())
+        Types.push_back(V->getType());
+    }
+    Check(Types.size() == ZTTSignature.size(), "Invalid ZTT intrinsic arity", Call);
+    unsigned XLen = Call.getModule()->getDataLayout().getPointerSizeInBits();
+    SmallVector<unsigned, 4> MSquares;
+    SmallVector<unsigned, 4> ASquares;
+    SmallVector<unsigned, 4> ARegisters;
+    unsigned MaxPack = 1;
+    unsigned TileSide = 0;
+    SmallVector<unsigned, 4> MWidths;
+    for (auto [Ty, Kind] : zip(Types, ZTTSignature)) {
+      if (Kind == 'X') {
+        Check(Ty->isIntegerTy(XLen), "ZTT scalar operands must have XLEN width", Call);
+        continue;
+      }
+      if (Kind == 'P') {
+        Check(Ty->isPointerTy() && cast<PointerType>(Ty)->getAddressSpace() == 0,
+              "ZTT memory operands require an address-space-zero pointer", Call);
+        continue;
+      }
+      auto *MT = dyn_cast<TargetExtType>(Ty);
+      Check(MT && MT->getName() == (Kind == 'M' ? "riscv.ztt.matrix" : "riscv.ztt.acc"),
+            "ZTT operand has the wrong matrix register-file type", Call);
+      if (!TileSide)
+        TileSide = MT->getIntParameter(0);
+      Check(MT->getIntParameter(0) == TileSide,
+            "ZTT operands must use the same matrix shape", Call);
+      unsigned Width = MT->getTypeParameter(0)->getPrimitiveSizeInBits();
+      unsigned Pack = std::max(1U, 32 / Width);
+      unsigned NSq = MT->getNumIntParameters() == 3
+                         ? MT->getIntParameter(2) : (Kind == 'M' ? Pack : 1);
+      if (Kind == 'M') {
+        MaxPack = std::max(MaxPack, Pack);
+        MSquares.push_back(NSq);
+        MWidths.push_back(Width);
+      } else {
+        ASquares.push_back(NSq);
+        ARegisters.push_back(std::max(NSq, Pack));
+      }
+      if (ZTTForm == "zip")
+        Check(NSq == 1 && Pack == 1, "ZTT zip requires one non-packed square", Call);
+    }
+    StringRef Name = IF->getName();
+    bool IsPack = Name.starts_with("llvm.riscv.ztt.mpack.") ||
+                  Name.starts_with("llvm.riscv.ztt.munpack.");
+    if (ZTTForm == "matrix" &&
+        (Name.contains(".ew") || Name.contains(".mprefix") ||
+         Name.contains(".mreduce") || Name.contains(".mmov.m.m.")) &&
+        !IsPack)
+      for (unsigned NSq : MSquares)
+        Check(NSq == MaxPack,
+              "ZTT elementwise operands must contain max(pack_factor) squares", Call);
+    if (Name.contains(".2d") && !Name.contains(".mzero.")) {
+      for (unsigned NSq : MSquares)
+        Check(NSq == MaxPack, "ZTT multiply input square count is invalid", Call);
+      for (unsigned NSq : ASquares)
+        Check(NSq == 1, "ZTT multiply accumulator must contain one square", Call);
+    }
+    if (Name.contains(".mmov.m.a.") || Name.contains(".mmov.a.m."))
+      Check(MSquares.size() == 1 && ASquares.size() == 1 &&
+                MSquares[0] == MaxPack &&
+                ARegisters[0] == MaxPack,
+            "ZTT M/ACC moves require matching complete packed-square groups", Call);
+    if (Name.contains(".mls.1r.") || Name.contains(".mss.1r.") ||
+        Name.starts_with("llvm.riscv.ztt.mmove")) {
+      Check(MSquares[0] * MWidths[0] == 32,
+            "ZTT raw register operations require exactly one M register", Call);
+    } else if (Name.starts_with("llvm.riscv.ztt.mls.") ||
+               Name.starts_with("llvm.riscv.ztt.mss.") ||
+               Name.starts_with("llvm.riscv.ztt.mbcast.") ||
+               Name.starts_with("llvm.riscv.ztt.mzero.2d.m.")) {
+      Check(MSquares[0] == MaxPack,
+            "ZTT memory, broadcast and zero operations require one datatype group",
+            Call);
+    }
+    if (IsPack) {
+      bool IsUnpack = Name.starts_with("llvm.riscv.ztt.munpack.");
+      unsigned Packed = IsUnpack ? 1 : 0;
+      unsigned Unpacked = 1 - Packed;
+      Check(MWidths[Packed] < 32 && MWidths[Unpacked] >= 32 &&
+                MSquares[Packed] == 32 / MWidths[Packed] &&
+                MSquares[Unpacked] == 1,
+            "ZTT pack/unpack requires one packed register and one non-packed square",
+            Call);
+    }
+    if (ZTTForm == "set") {
+      auto *MT = cast<TargetExtType>(Call.getType());
+      if (auto *Descriptor = dyn_cast<ConstantInt>(Call.getArgOperand(1)))
+        Check((Descriptor->getZExtValue() & 255) ==
+                  MT->getTypeParameter(0)->getPrimitiveSizeInBits(),
+              "ZTT datatype descriptor width must match the result element width", Call);
+    }
+  }
 
   // If the intrinsic takes MDNode arguments, verify that they are either global
   // or are local to *this* function.

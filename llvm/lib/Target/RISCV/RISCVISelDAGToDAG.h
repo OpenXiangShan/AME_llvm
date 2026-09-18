@@ -31,10 +31,7 @@ public:
                              CodeGenOptLevel OptLevel)
       : SelectionDAGISel(TargetMachine, OptLevel) {}
 
-  bool runOnMachineFunction(MachineFunction &MF) override {
-    Subtarget = &MF.getSubtarget<RISCVSubtarget>();
-    return SelectionDAGISel::runOnMachineFunction(MF);
-  }
+  bool runOnMachineFunction(MachineFunction &MF) override;
 
   void PreprocessISelDAG() override;
   void PostprocessISelDAG() override;

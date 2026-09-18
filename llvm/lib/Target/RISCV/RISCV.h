@@ -18,6 +18,7 @@
 #include "llvm/Target/TargetMachine.h"
 
 namespace llvm {
+
 class FunctionPass;
 class InstructionSelector;
 class ModulePass;
@@ -25,6 +26,9 @@ class PassRegistry;
 class RISCVRegisterBankInfo;
 class RISCVSubtarget;
 class RISCVTargetMachine;
+
+FunctionPass *createRISCVBoscZttPass();
+void initializeRISCVBoscZttPass(PassRegistry &);
 
 class RISCVCodeGenPreparePass
     : public OptionalPassInfoMixin<RISCVCodeGenPreparePass> {

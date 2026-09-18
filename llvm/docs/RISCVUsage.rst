@@ -402,6 +402,11 @@ It is our intention to follow the naming conventions described in `riscv-non-isa
 
 The current vendor extensions supported are:
 
+``boscztt``
+  This checkout supports the fixed-parameter Ztt v0.6 draft under the local
+  extension name ``boscztt``. See `the boscztt guide <RISCVBoscZtt.html>`_ for
+  matrix IR types, intrinsic contracts, configuration, and examples.
+
 ``XAIFET``
   LLVM implements `the AIFET (AI Foundry's ET) vendor-defined instructions specified in <https://github.com/aifoundry-org/et-man/blob/main/ET%20Programmer's%20Reference%20Manual.pdf>`__ originally defined by Esperanto Technologies (and now under the AI Foundry non-profit).  Instructions are prefixed with `aif.` as described in the specification.
 
