@@ -51,17 +51,12 @@ every ZTT datatype and operation combination.
   disassembly. The checked inventory is
   [`boscztt-v0.6.json`](llvm/test/CodeGen/RISCV/boscztt/Inputs/boscztt-v0.6.json).
 * **Target feature selection.** `+boscztt` is available to `llc`, `llvm-mc`,
-  and `llvm-objdump`. Clang accepts `-march=rv32im_boscztt` and
-  `-march=rv64im_boscztt`, and accepts `-mboscztt-profile=default` or
-  `-mboscztt-profile=ame-gem5`.
-* **Fixed implementation profiles.** The default profile is an 8x8 logical
+  and `llvm-objdump`. Clang accepts `-march=rv32im_boscztt`,
+  `-march=rv64im_boscztt`, and `-mboscztt-profile=default`.
+* **Default implementation profile.** The default profile is an 8x8 logical
   square with 32-bit units, 16 M registers (`m0`-`m15`), 8 ACC registers
-  (`acc0`-`acc7`), and a public element-width limit of 64 bits. The
-  `ame-gem5` profile is a compatibility profile for the AME_gem5 tree: 4x4,
-  32 M registers (`m0`-`m31`), 4 ACC registers (`acc0`-`acc3`), and a 128-bit
-  public element-width limit. In the latter profile one logical M image is
-  64 bytes; the simulator's larger backing container does not change that
-  transfer size. Md/Ad descriptor state is coupled to the corresponding M/ACC
+  (`acc0`-`acc7`), and a public element-width limit of 64 bits.
+  Md/Ad descriptor state is coupled to the corresponding M/ACC
   values. The provisional CSR names and numbers from the PDF are retained:
   `amenlen` (`0xcc0`), `ameudsz` (`0xcc1`), `amestype` (`0xcc2`), `ameown`
   (`0xcc3`), `amefflags` (`0xcc4`), `amexsat` (`0xcc5`), and `amestatus`
@@ -75,10 +70,9 @@ every ZTT datatype and operation combination.
   limits, XLEN operands, and relationships between intrinsic operands.
 * **Element-type declarations.** The Clang header provides fixed-shape M and
   ACC register types for signed and unsigned integer storage widths from 4 to
-  64 bits, `half`, `bfloat`, `float`, `double`, and FP8 storage aliases. The
-  AME profile additionally exposes 128-bit integer storage types and their
-  valid M groups. Signedness, rounding, saturation, and custom datatype
-  properties remain in the runtime descriptor, as required by the draft.
+  64 bits, `half`, `bfloat`, `float`, `double`, and FP8 storage aliases.
+  Signedness, rounding, saturation, and custom datatype properties remain
+  in the runtime descriptor, as required by the draft.
   The `i1` and `i2` storage names are implementation extensions and are not
   additional standard v0.6 integer datatypes.
 * **Clang source interface.** `<RISCVBoscZtt.h>` exposes the generated builtin
@@ -140,9 +134,8 @@ conformance:
    semantics and its `amestatus`/unsupported-operation behavior.
 2. **Runtime and privileged-state support is external.** Ownership, CSR
    behavior, AME context switching, OS save/restore, traps, and device-side
-   late memory errors are not implemented by LLVM. The optional gem5 runners
-   exercise a particular simulator profile; their result cannot certify the
-   whole PDF or replace a hardware conformance suite.
+   late memory errors are not implemented by LLVM. These facilities are
+   responsibilities of the target hardware and runtime.
 3. **There is no standardized ZTT psABI.** Matrix argument and return
    allocation in this tree is a local compiler convention, including its
    `fastcc` behavior. Interoperability requires all callers and callees to use
@@ -152,12 +145,11 @@ conformance:
    instructions are selected from the explicit builtins or LLVM intrinsics.
    No general C/C++ matrix language, optimizer cost model, or automatic
    lowering from ordinary scalar/vector loops is provided.
-5. **The profiles expose different type sets.** The default profile stops at
-   64-bit elements. AME exposes i128 M/ACC types, but narrow ACC values may
-   require a complete packed ACC group for safe preservation; an i4 ACC group
-   that exceeds the four-ACC AME profile is rejected. A representable type or
-   descriptor is not a promise that a particular operation is supported by
-   the target hardware.
+5. **Implementation limits affect type availability.** The default profile
+   supports element widths up to 64 bits. Register counts and alignment
+   requirements constrain which M/ACC types can be represented and preserved.
+   A representable type or descriptor is not a promise that a particular
+   operation is supported by the target hardware.
 6. **The C and IR interfaces are implementation interfaces.** The PDF defines
    the ISA, not LLVM target-extension syntax, Clang type names, C object
    layout, or a portable library ABI. Programs needing ordinary memory
@@ -192,7 +184,9 @@ be used by replacing `build-boscztt` consistently in the commands below.
 
 ### Run the compiler tests
 
-Run the dedicated ZTT tests with LLVM's lit harness:
+Run the dedicated ZTT tests with LLVM's lit harness. These tests validate
+compiler behavior, instruction encodings, and diagnostics without executing
+target programs:
 
 ```sh
 build-boscztt/bin/llvm-lit -sv \
@@ -217,16 +211,6 @@ build-boscztt/bin/clang \
   -ffreestanding -fno-builtin -O2 -c source.c -o source.o
 ```
 
-Select the AME_gem5 compatibility profile explicitly when the target has its
-4x4/32-M/4-ACC configuration:
-
-```sh
-build-boscztt/bin/clang \
-  --target=riscv64-unknown-elf -march=rv64im_boscztt \
-  -mboscztt-profile=ame-gem5 -ffreestanding -fno-builtin -O2 \
-  -c source.c -o source-ame-gem5.o
-```
-
 The source can include `<RISCVBoscZtt.h>`. Add `-std=c++17` for C++ source.
 These commands compile; linking and execution require a RISC-V linker,
 startup code, memory routines, and a target runtime that implements ZTT.
@@ -240,17 +224,6 @@ build-boscztt/bin/llvm-mc -triple=riscv64 -mattr=+boscztt \
 build-boscztt/bin/llvm-objdump -d --mattr=+boscztt output.o
 ```
 
-For `m16`-`m31`, 4x4 shapes, or i128 AME types, use the compatibility feature
-on every backend tool:
-
-```sh
-build-boscztt/bin/llc -mtriple=riscv64 \
-  -mattr=+boscztt,+boscztt-ame-gem5 input.ll -o output-ame-gem5.s
-build-boscztt/bin/llvm-mc -triple=riscv64 \
-  -mattr=+boscztt,+boscztt-ame-gem5 -filetype=obj \
-  output-ame-gem5.s -o output-ame-gem5.o
-```
-
 `opt -passes=verify` can be used to validate textual IR containing the ZTT
 target-extension types. `llvm-mc -show-encoding` prints the provisional
 instruction encoding for an assembly instruction, and `llvm-objdump` checks
@@ -260,45 +233,6 @@ the corresponding object disassembly. LLVM bitcode can be inspected with:
 build-boscztt/bin/llvm-as input.ll -o input.bc
 build-boscztt/bin/llvm-dis input.bc -o -
 ```
-
-### Optional gem5 execution
-
-The scripts in
-[`clang/test/CodeGen/RISCV/boscztt/Inputs`](clang/test/CodeGen/RISCV/boscztt/Inputs)
-are optional integration checks, not part of the compiler-only lit suite. They
-require a compatible ZTT gem5 binary and either `ld.lld` or a Rust toolchain
-providing `rust-lld`:
-
-```sh
-python3 clang/test/CodeGen/RISCV/boscztt/Inputs/run-gem5.py \
-  --gem5 /path/to/gem5.opt \
-  --clang build-boscztt/bin/clang \
-  --profile ame-gem5 --cpu atomic \
-  --output build-boscztt/boscztt-validation/gem5
-```
-
-The runner builds freestanding C/C++ real-data programs for RV32/RV64 and
-records each guest exit code and simulator log under the selected output
-directory. Use `--profile default` only with a simulator configured for the
-default 8x8/16-M/8-ACC profile. The register-preservation runner provides
-additional AME_gem5 checks:
-
-```sh
-python3 clang/test/CodeGen/RISCV/boscztt/Inputs/run-gem5-register-data.py \
-  --gem5 /path/to/gem5.opt \
-  --clang build-boscztt/bin/clang \
-  --cpu atomic \
-  --output build-boscztt/boscztt-validation/register-data
-```
-
-The `ame-gem5` profile describes register geometry; it does not guarantee that
-all simulator execution paths implement the draft correctly. With AME_gem5
-commit `e958e81c08` and only the local-toolchain selection changes, the tested
-Atomic real-data and register-preservation programs pass. The same real-data
-suite fails on TimingSimple, Minor, and O3. Full integration on those CPU
-models requires additional simulator fixes, which are not included in this
-LLVM repository. See the [simulator compatibility details](llvm/docs/RISCVBoscZtt.md#ame_gem5-baseline-compatibility).
-The compiler lit tests do not require gem5.
 
 ## Getting the Source Code and Building LLVM
 
